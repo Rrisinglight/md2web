@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown to web</title>
+    <!-- Подключение шрифта Noto -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    />
+    <style>
+      body {
+        font-family: "Noto Sans", sans-serif;
+      }
+      .drop-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 0.375rem;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .drop-zone.dragover {
+        background-color: #e5e7eb;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <header class="bg-gray-800 text-white p-4">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold">Markdown to web</h1>
+        <nav>
+          {% if session.user_id %}
+          <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300"
+            >Профиль ({{ session.username }})</a
+          >
+          <a href="{{ url_for('logout') }}" class="hover:text-gray-300"
+            >Выйти</a
+          >
+          {% else %}
+          <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300"
+            >Войти</a
+          >
+          <a href="{{ url_for('register') }}" class="hover:text-gray-300"
+            >Регистрация</a
+          >
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+    <main class="container mx-auto p-4">
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div
+        class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4"
+        role="alert"
+      >
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold mb-4">Загрузите Markdown файл</h2>
+        <form
+          action="{{ url_for('upload_file') }}"
+          method="post"
+          enctype="multipart/form-data"
+          class="space-y-4"
+        >
+          <!-- Зона для Markdown файла -->
+          <div class="drop-zone" id="drop-zone-markdown">
+            <label for="markdown_file" class="cursor-pointer block">
+              <i class="fas fa-file-upload text-gray-400 text-4xl mb-2"></i>
+              <p class="text-gray-600">Выберите или перетащите Markdown файл</p>
+              <input
+                type="file"
+                id="markdown_file"
+                name="markdown_file"
+                accept=".md, .markdown"
+                class="hidden"
+                required
+              />
+              <p id="selected_file" class="mt-2 text-sm text-gray-500">
+                Файл не выбран
+              </p>
+            </label>
+          </div>
+          <!-- Зона для дополнительных файлов -->
+          <div class="drop-zone" id="drop-zone-additional">
+            <label for="additional_files" class="cursor-pointer block">
+              <i class="fas fa-images text-gray-400 text-4xl mb-2"></i>
+              <p class="text-gray-600">
+                Выберите или перетащите дополнительные файлы (изображения и
+                т.д.)
+              </p>
+              <input
+                type="file"
+                id="additional_files"
+                name="additional_files"
+                multiple
+                class="hidden"
+              />
+              <p id="selected_additional" class="mt-2 text-sm text-gray-500">
+                Файлы не выбраны
+              </p>
+            </label>
+          </div>
+          <div class="text-center">
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Загрузить и опубликовать
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Возможности сервиса</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="border rounded-lg p-4">
+            <h3 class="text-xl font-medium mb-2">
+              Преобразование Markdown в HTML
+            </h3>
+            <p>
+              Загрузите ваш Markdown файл и получите красиво отформатированную
+              HTML-страницу с поддержкой всех стандартных элементов Markdown.
+            </p>
+          </div>
+          <div class="border rounded-lg p-4">
+            <h3 class="text-xl font-medium mb-2">Поддержка изображений</h3>
+            <p>
+              Загружайте изображения вместе с Markdown-файлом, и они будут
+              автоматически встроены в вашу HTML-страницу.
+            </p>
+          </div>
+          <div class="border rounded-lg p-4">
+            <h3 class="text-xl font-medium mb-2">Структура документа</h3>
+            <p>
+              Автоматическое создание содержания на основе заголовков Markdown,
+              удобная навигация по разделам документа.
+            </p>
+          </div>
+          <div class="border rounded-lg p-4">
+            <h3 class="text-xl font-medium mb-2">Хранение документов</h3>
+            <p>
+              Документы хранятся 3 дня без регистрации. Зарегистрированные
+              пользователи получают 256МБ места для хранения документов.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="bg-gray-800 text-white p-4 mt-8">
+      <div class="container mx-auto text-center">
+        <p>&copy; 2025 Markdown to web. Все права защищены.</p>
+      </div>
+    </footer>
+    <script>
+      // Обработка изменения input для markdown файла
+      const dropZoneMarkdown = document.getElementById("drop-zone-markdown");
+      const markdownInput = document.getElementById("markdown_file");
+      const selectedFile = document.getElementById("selected_file");
+
+      dropZoneMarkdown.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZoneMarkdown.classList.add("dragover");
+      });
+
+      dropZoneMarkdown.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dropZoneMarkdown.classList.remove("dragover");
+      });
+
+      dropZoneMarkdown.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZoneMarkdown.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+          markdownInput.files = e.dataTransfer.files;
+          selectedFile.textContent = e.dataTransfer.files[0].name;
+        }
+      });
+
+      // Обработка изменения input для дополнительных файлов
+      const dropZoneAdditional = document.getElementById(
+        "drop-zone-additional"
+      );
+      const additionalInput = document.getElementById("additional_files");
+      const selectedAdditional = document.getElementById("selected_additional");
+
+      dropZoneAdditional.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZoneAdditional.classList.add("dragover");
+      });
+
+      dropZoneAdditional.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dropZoneAdditional.classList.remove("dragover");
+      });
+
+      dropZoneAdditional.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZoneAdditional.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+          additionalInput.files = e.dataTransfer.files;
+          selectedAdditional.textContent = `Выбрано файлов: ${e.dataTransfer.files.length}`;
+        }
+      });
+
+      // Обработчик для обычного выбора через input
+      markdownInput.addEventListener("change", function (e) {
+        if (e.target.files.length > 0) {
+          selectedFile.textContent = e.target.files[0].name;
+        }
+      });
+      additionalInput.addEventListener("change", function (e) {
+        const count = e.target.files.length;
+        selectedAdditional.textContent =
+          count > 0 ? `Выбрано файлов: ${count}` : "Файлы не выбраны";
+      });
+    </script>
+  </body>
+</html>
