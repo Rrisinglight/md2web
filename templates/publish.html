@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="{{ theme }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,21 +10,94 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
     <style>
       body { font-family: 'Noto Sans', sans-serif; }
+      
+      /* Стили для темной темы */
+      html.dark {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      html.dark body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-white {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-gray-100 {
+        background-color: #2d2d2d !important;
+      }
+
+      .dark .text-gray-700 {
+        color: #d0d0d0 !important;
+      }
+
+      .dark .text-gray-600 {
+        color: #aaaaaa !important;
+      }
+
+      .dark .border {
+        border-color: #3a3a3a !important;
+      }
+
+      .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .dark .bg-yellow-100 {
+        background-color: #3a3000 !important;
+        color: #ffd373 !important;
+      }
+
+      .dark .text-yellow-700 {
+        color: #ffd373 !important;
+      }
+
+      .dark .border-yellow-500 {
+        border-color: #ffd373 !important;
+      }
+      
+      .dark input {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+        border-color: #3a3a3a !important;
+      }
+      
+      /* Переключатель темы */
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen">
     <header class="bg-gray-800 text-white p-4">
       <div class="container mx-auto flex justify-between items-center">
         <h1 class="text-xl font-bold">Markdown to web</h1>
-        <nav>
-          {% if session.user_id %}
-          <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300">Профиль ({{ session.username }})</a>
-          <a href="{{ url_for('logout') }}" class="hover:text-gray-300">Выйти</a>
-          {% else %}
-          <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300">Войти</a>
-          <a href="{{ url_for('register') }}" class="hover:text-gray-300">Регистрация</a>
-          {% endif %}
-        </nav>
+        <div class="flex items-center">
+          <div class="theme-toggle mr-4" id="theme-toggle">
+            <i class="fas fa-moon text-yellow-300" id="theme-icon"></i>
+          </div>
+          <nav>
+            {% if session.user_id %}
+            <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300">Профиль ({{ session.username }})</a>
+            <a href="{{ url_for('logout') }}" class="hover:text-gray-300">Выйти</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300">Войти</a>
+            <a href="{{ url_for('register') }}" class="hover:text-gray-300">Регистрация</a>
+            {% endif %}
+          </nav>
+        </div>
       </div>
     </header>
     <main class="container mx-auto p-4">
@@ -66,6 +139,56 @@
         urlField.select();
         document.execCommand("copy");
         alert("Ссылка скопирована в буфер обмена!");
+      }
+      
+      // Переключение темы
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      themeToggle.addEventListener('click', function() {
+        const html = document.documentElement;
+        
+        if (html.classList.contains('dark')) {
+          // Переключение на светлую тему
+          html.classList.remove('dark');
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          updateTheme('light');
+        } else {
+          // Переключение на темную тему
+          html.classList.add('dark');
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          updateTheme('dark');
+        }
+      });
+      
+      // Устанавливаем правильный значок темы при загрузке
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      });
+      
+      // Обновление темы на сервере
+      function updateTheme(theme) {
+        fetch('/toggle-theme', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `theme=${theme}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.log('Ошибка при сохранении темы:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка при обновлении темы:', error);
+        });
       }
     </script>
   </body>

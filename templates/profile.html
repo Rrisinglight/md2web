@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="{{ theme }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,132 @@
       body {
         font-family: "Noto Sans", sans-serif;
       }
+      
+      /* Стили для темной темы */
+      html.dark {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      html.dark body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-white {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-gray-100 {
+        background-color: #121212 !important;
+      }
+      
+      .dark .bg-gray-300 {
+        background-color: #383838 !important;
+      }
+
+      .dark .text-gray-700,
+      .dark .text-gray-500 {
+        color: #d0d0d0 !important;
+      }
+
+      .dark .text-gray-600 {
+        color: #aaaaaa !important;
+      }
+
+      .dark .border {
+        border-color: #3a3a3a !important;
+      }
+      
+      .dark .border-b {
+        border-color: #3a3a3a !important;
+      }
+
+      .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .dark .bg-blue-100 {
+        background-color: #041d3f !important;
+        color: #b0d6ff !important;
+      }
+
+      .dark .text-blue-700 {
+        color: #b0d6ff !important;
+      }
+
+      .dark .border-blue-500 {
+        border-color: #b0d6ff !important;
+      }
+      
+      /* Таблица в темной теме */
+      .dark .min-w-full.bg-white {
+        background-color: transparent !important;
+      }
+      
+      .dark .bg-gray-100.text-gray-600 {
+        background-color: #2a2a2a !important;
+        color: #d0d0d0 !important;
+      }
+      
+      /* Переключатель темы */
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      /* Модальное окно */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      
+      .modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        max-width: 90%;
+        width: 400px;
+      }
+      
+      .dark .modal-content {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+      }
+      
+      .dark a.text-blue-600 {
+        color: #77b6ff !important;
+      }
+      
+      .dark a.text-blue-600:hover,
+      .dark a.text-blue-800:hover {
+        color: #a5c9ff !important;
+      }
+      
+      .dark a.text-red-600 {
+        color: #ff8a8a !important;
+      }
+      
+      .dark a.text-red-600:hover,
+      .dark a.text-red-800:hover {
+        color: #ffb3b3 !important;
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen">
@@ -29,11 +155,16 @@
         <a href="{{ url_for('index') }}" class="text-xl font-bold"
           >Markdown to web</a
         >
-        <nav>
-          <a href="{{ url_for('logout') }}" class="hover:text-gray-300"
-            >Выйти</a
-          >
-        </nav>
+        <div class="flex items-center">
+          <div class="theme-toggle mr-4" id="theme-toggle">
+            <i class="fas fa-moon text-yellow-300" id="theme-icon"></i>
+          </div>
+          <nav>
+            <a href="{{ url_for('logout') }}" class="hover:text-gray-300"
+              >Выйти</a
+            >
+          </nav>
+        </div>
       </div>
     </header>
     <main class="container mx-auto p-4">
@@ -130,10 +261,23 @@
                   <a
                     href="{{ url_for('view_document', document_id=doc_id) }}"
                     class="text-blue-600 hover:text-blue-800 mr-2"
+                    title="Просмотреть"
                   >
                     <i class="fas fa-eye"></i>
                   </a>
-                  <a href="#" class="text-red-600 hover:text-red-800">
+                  <a
+                    href="{{ url_for('edit_document', document_id=doc_id) }}"
+                    class="text-blue-600 hover:text-blue-800 mr-2"
+                    title="Редактировать"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a 
+                    href="#" 
+                    class="text-red-600 hover:text-red-800"
+                    onclick="confirmDelete('{{ doc_id }}', '{{ filename }}')"
+                    title="Удалить"
+                  >
                     <i class="fas fa-trash-alt"></i>
                   </a>
                 </td>
@@ -155,10 +299,104 @@
         {% endif %}
       </div>
     </main>
+    
+    <!-- Модальное окно подтверждения удаления -->
+    <div id="delete-modal" class="modal">
+      <div class="modal-content">
+        <h3 class="text-xl font-semibold mb-4">Подтверждение удаления</h3>
+        <p class="mb-4">Вы действительно хотите удалить документ <span id="delete-filename" class="font-semibold"></span>?</p>
+        <p class="mb-6 text-sm text-gray-600">Это действие нельзя отменить.</p>
+        <div class="flex justify-end">
+          <button id="cancel-delete" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded mr-2">
+            Отмена
+          </button>
+          <form id="delete-form" method="post" action="">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+              Удалить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    
     <footer class="bg-gray-800 text-white p-4 mt-8">
       <div class="container mx-auto text-center">
         <p>&copy; 2025 Markdown to web. Все права защищены.</p>
       </div>
     </footer>
+    
+    <script>
+      // Модальное окно подтверждения удаления
+      const modal = document.getElementById('delete-modal');
+      const cancelButton = document.getElementById('cancel-delete');
+      const deleteForm = document.getElementById('delete-form');
+      const deleteFilename = document.getElementById('delete-filename');
+      
+      function confirmDelete(docId, filename) {
+        deleteForm.action = '/delete/' + docId;
+        deleteFilename.textContent = filename;
+        modal.style.display = 'flex';
+      }
+      
+      cancelButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+      
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+      
+      // Переключение темы
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      themeToggle.addEventListener('click', function() {
+        const html = document.documentElement;
+        
+        if (html.classList.contains('dark')) {
+          // Переключение на светлую тему
+          html.classList.remove('dark');
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          updateTheme('light');
+        } else {
+          // Переключение на темную тему
+          html.classList.add('dark');
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          updateTheme('dark');
+        }
+      });
+      
+      // Устанавливаем правильный значок темы при загрузке
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      });
+      
+      // Обновление темы на сервере
+      function updateTheme(theme) {
+        fetch('/toggle-theme', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `theme=${theme}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.log('Ошибка при сохранении темы:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка при обновлении темы:', error);
+        });
+      }
+    </script>
   </body>
 </html>

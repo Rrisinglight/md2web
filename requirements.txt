@@ -1,0 +1,8 @@
+
+Flask
+Werkzeug
+Jinja2
+markdown
+mkdocs-material
+pymdown-extensions
+gunicorn

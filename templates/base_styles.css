@@ -1,0 +1,152 @@
+/* Базовые стили для темной темы */
+html.dark {
+	background-color: #121212;
+	color: #e0e0e0;
+  }
+  
+  html.dark body {
+	background-color: #121212;
+	color: #e0e0e0;
+  }
+  
+  .dark .bg-white {
+	background-color: #1e1e1e !important;
+	color: #e0e0e0;
+  }
+  
+  .dark .bg-gray-100 {
+	background-color: #121212 !important;
+  }
+  
+  .dark .bg-gray-200 {
+	background-color: #2d2d2d !important;
+  }
+  
+  .dark .text-gray-700 {
+	color: #d0d0d0 !important;
+  }
+  
+  .dark .text-gray-600 {
+	color: #aaaaaa !important;
+  }
+  
+  .dark .border {
+	border-color: #3a3a3a !important;
+  }
+  
+  .dark .shadow-md {
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .dark .bg-yellow-100 {
+	background-color: #3a3000 !important;
+	color: #ffd373 !important;
+  }
+  
+  .dark .text-yellow-700 {
+	color: #ffd373 !important;
+  }
+  
+  .dark .border-yellow-500 {
+	border-color: #ffd373 !important;
+  }
+  
+  .dark .bg-red-100 {
+	background-color: #3f0404 !important;
+	color: #ffb0b0 !important;
+  }
+  
+  .dark .text-red-700 {
+	color: #ffb0b0 !important;
+  }
+  
+  .dark .border-red-500 {
+	border-color: #ffb0b0 !important;
+  }
+  
+  .dark .bg-blue-100 {
+	background-color: #041d3f !important;
+	color: #b0d6ff !important;
+  }
+  
+  .dark .text-blue-700 {
+	color: #b0d6ff !important;
+  }
+  
+  .dark .border-blue-500 {
+	border-color: #b0d6ff !important;
+  }
+  
+  .dark .border-b {
+	border-color: #3a3a3a !important;
+  }
+  
+  .dark input, 
+  .dark textarea,
+  .dark select {
+	background-color: #2d2d2d !important;
+	color: #e0e0e0 !important;
+	border-color: #3a3a3a !important;
+  }
+  
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+	border-color: #4a90e2 !important;
+  }
+  
+  .dark a {
+	color: #4a90e2;
+  }
+  
+  .dark a:hover {
+	color: #77b6ff;
+  }
+  
+  .dark .text-blue-600 {
+	color: #77b6ff !important;
+  }
+  
+  .dark .text-blue-800:hover {
+	color: #a5c9ff !important;
+  }
+  
+  /* Переключатель темы */
+  .theme-toggle {
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 0.25rem;
+	display: flex;
+	align-items: center;
+  }
+  
+  .theme-toggle:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Модификации для таблицы в темной теме */
+  .dark .markdown-content table th {
+	background-color: #2a2a2a;
+	border-color: #3a3a3a;
+  }
+  
+  .dark .markdown-content table td {
+	border-color: #3a3a3a;
+  }
+  
+  .dark .markdown-content table tr:nth-child(even) {
+	background-color: #2a2a2a;
+  }
+  
+  .dark .markdown-content pre {
+	background-color: #1a1a1a;
+  }
+  
+  .dark .markdown-content code {
+	background-color: #1a1a1a;
+  }
+  
+  .dark .markdown-content blockquote {
+	border-left-color: #4a5568;
+	color: #aaaaaa;
+  }

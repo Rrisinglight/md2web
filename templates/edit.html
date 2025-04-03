@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru" class="{{ theme }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Редактирование {{ filename }} - Markdown to web</title>
+    <!-- Подключение шрифта Noto -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css" />
+    <!-- Подключение дополнительных стилей CodeMirror для подсветки Markdown -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/display/fullscreen.min.css" />
+    <style>
+      body {
+        font-family: 'Noto Sans', sans-serif;
+      }
+      
+      .CodeMirror {
+        height: 70vh;
+        font-family: 'Noto Sans', monospace;
+        font-size: 14px;
+      }
+      
+      /* Темная тема для сайта */
+      .dark {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+      
+      .dark .bg-white {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0;
+      }
+      
+      .dark .bg-gray-100 {
+        background-color: #121212 !important;
+      }
+      
+      .dark .bg-gray-200 {
+        background-color: #2d2d2d !important;
+      }
+      
+      .dark .text-gray-700 {
+        color: #d0d0d0 !important;
+      }
+      
+      .dark .text-gray-600 {
+        color: #aaaaaa !important;
+      }
+      
+      .dark .border {
+        border-color: #3a3a3a !important;
+      }
+      
+      .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+      }
+      
+      .dark .bg-yellow-100 {
+        background-color: #3a3000 !important;
+        color: #ffd373 !important;
+      }
+      
+      .dark .text-yellow-700 {
+        color: #ffd373 !important;
+      }
+      
+      .dark .border-yellow-500 {
+        border-color: #ffd373 !important;
+      }
+      
+      .dark input, 
+      .dark textarea {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+        border-color: #3a3a3a !important;
+      }
+      
+      .dark input:focus,
+      .dark textarea:focus {
+        border-color: #4a90e2 !important;
+      }
+      
+      /* Переключатель темы */
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+      }
+      
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .toolbar-btn {
+        padding: 0.5rem;
+        margin-right: 0.5rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .toolbar-btn:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      
+      .dark .toolbar-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .dark a {
+        color: #4a90e2;
+      }
+      
+      .dark a:hover {
+        color: #77b6ff;
+      }
+      
+      .preview-container {
+        line-height: 1.6;
+        padding: 1rem;
+        overflow-y: auto;
+        height: 70vh;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+      }
+      
+      .dark .preview-container {
+        border-color: #3a3a3a;
+        background-color: #2d2d2d;
+      }
+      
+      .preview-container h1 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eaeaea;
+      }
+      
+      .dark .preview-container h1 {
+        border-bottom-color: #3a3a3a;
+      }
+      
+      .preview-container h2 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      .preview-container h3 {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-top: 1.2rem;
+        margin-bottom: 0.8rem;
+      }
+      
+      .preview-container h4,
+      .preview-container h5,
+      .preview-container h6 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        margin-bottom: 0.8rem;
+      }
+      
+      .preview-container p {
+        margin-bottom: 1rem;
+      }
+      
+      .preview-container ul,
+      .preview-container ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+      }
+      
+      .preview-container ul {
+        list-style-type: disc;
+      }
+      
+      .preview-container ol {
+        list-style-type: decimal;
+      }
+      
+      .preview-container li {
+        margin-bottom: 0.5rem;
+      }
+      
+      .preview-container pre {
+        background-color: #f6f8fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+      }
+      
+      .dark .preview-container pre {
+        background-color: #1a1a1a;
+      }
+      
+      .preview-container code {
+        font-family: monospace;
+        background-color: #f6f8fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+      }
+      
+      .dark .preview-container code {
+        background-color: #1a1a1a;
+      }
+      
+      .preview-container pre code {
+        padding: 0;
+        background-color: transparent;
+      }
+      
+      .preview-container blockquote {
+        border-left: 4px solid #e2e8f0;
+        padding-left: 1rem;
+        color: #4a5568;
+        margin-bottom: 1rem;
+      }
+      
+      .dark .preview-container blockquote {
+        border-left-color: #4a5568;
+        color: #aaaaaa;
+      }
+      
+      .preview-container img {
+        max-width: 100%;
+        height: auto;
+        margin: 1rem 0;
+      }
+      
+      .preview-container table {
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+      
+      .preview-container table th {
+        background-color: #f8fafc;
+        font-weight: bold;
+        text-align: left;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+      }
+      
+      .dark .preview-container table th {
+        background-color: #2a2a2a;
+        border-color: #3a3a3a;
+      }
+      
+      .preview-container table td {
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+      }
+      
+      .dark .preview-container table td {
+        border-color: #3a3a3a;
+      }
+      
+      .preview-container table tr:nth-child(even) {
+        background-color: #f8fafc;
+      }
+      
+      .dark .preview-container table tr:nth-child(even) {
+        background-color: #2a2a2a;
+      }
+      
+      /* Стили для уведомлений */
+      .notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      
+      .notification.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .notification-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid #10b981;
+      }
+      
+      .dark .notification-success {
+        background-color: #064e3b;
+        color: #6ee7b7;
+        border-left: 4px solid #10b981;
+      }
+      
+      .notification-error {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-left: 4px solid #ef4444;
+      }
+      
+      .dark .notification-error {
+        background-color: #450a0a;
+        color: #fca5a5;
+        border-left: 4px solid #ef4444;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <header class="bg-gray-800 text-white p-4">
+      <div class="container mx-auto flex justify-between items-center">
+        <a href="{{ url_for('index') }}" class="text-xl font-bold">Markdown to web</a>
+        <div class="flex items-center">
+          <div class="theme-toggle mr-4" id="theme-toggle">
+            <i class="fas fa-moon text-yellow-300" id="theme-icon"></i>
+          </div>
+          <nav>
+            {% if session.user_id %}
+            <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300">Профиль ({{ session.username }})</a>
+            <a href="{{ url_for('logout') }}" class="hover:text-gray-300">Выйти</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300">Войти</a>
+            <a href="{{ url_for('register') }}" class="hover:text-gray-300">Регистрация</a>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    </header>
+    
+    <main class="container mx-auto p-4">
+      <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+        <div class="flex justify-between items-center mb-4">
+          <h1 class="text-2xl font-semibold">Редактирование: {{ filename }}</h1>
+          <div class="flex">
+            <button id="preview-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mr-2">
+              <i class="fas fa-eye mr-2"></i>Предпросмотр
+            </button>
+            <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+              <i class="fas fa-save mr-2"></i>Сохранить
+            </button>
+          </div>
+        </div>
+        
+        <div class="toolbar flex flex-wrap mb-2 bg-gray-200 p-2 rounded dark:bg-gray-700">
+          <div class="toolbar-btn" title="Заголовок 1" onclick="insertMarkdown('# ', '')"><i class="fas fa-heading"></i>1</div>
+          <div class="toolbar-btn" title="Заголовок 2" onclick="insertMarkdown('## ', '')"><i class="fas fa-heading"></i>2</div>
+          <div class="toolbar-btn" title="Заголовок 3" onclick="insertMarkdown('### ', '')"><i class="fas fa-heading"></i>3</div>
+          <div class="toolbar-btn" title="Жирный" onclick="insertMarkdown('**', '**')"><i class="fas fa-bold"></i></div>
+          <div class="toolbar-btn" title="Курсив" onclick="insertMarkdown('*', '*')"><i class="fas fa-italic"></i></div>
+          <div class="toolbar-btn" title="Ссылка" onclick="insertMarkdown('[', '](url)')"><i class="fas fa-link"></i></div>
+          <div class="toolbar-btn" title="Изображение" onclick="insertMarkdown('![alt text](', ')')"><i class="fas fa-image"></i></div>
+          <div class="toolbar-btn" title="Список" onclick="insertMarkdownList('- ')"><i class="fas fa-list-ul"></i></div>
+          <div class="toolbar-btn" title="Нумерованный список" onclick="insertMarkdownList('1. ')"><i class="fas fa-list-ol"></i></div>
+          <div class="toolbar-btn" title="Цитата" onclick="insertMarkdownList('> ')"><i class="fas fa-quote-right"></i></div>
+          <div class="toolbar-btn" title="Код" onclick="insertMarkdown('`', '`')"><i class="fas fa-code"></i></div>
+          <div class="toolbar-btn" title="Блок кода" onclick="insertMarkdown('```\n', '\n```')"><i class="fas fa-file-code"></i></div>
+          <div class="toolbar-btn" title="Таблица" onclick="insertMarkdownTable()"><i class="fas fa-table"></i></div>
+          <div class="toolbar-btn" title="Горизонтальная линия" onclick="insertMarkdown('\n---\n', '')"><i class="fas fa-ruler-horizontal"></i></div>
+        </div>
+        
+        <div class="flex flex-col md:flex-row">
+          <div id="editor-container" class="w-full md:w-1/2 md:pr-2">
+            <textarea id="markdown-editor">{{ markdown_content }}</textarea>
+          </div>
+          <div id="preview-container" class="w-full md:w-1/2 md:pl-2 hidden">
+            <div class="preview-container" id="markdown-preview"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-between mt-4">
+        <a href="{{ url_for('view_document', document_id=document_id) }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+          <i class="fas fa-arrow-left mr-2"></i>Вернуться к просмотру
+        </a>
+      </div>
+    </main>
+    
+    <div id="notification" class="notification">
+      <span id="notification-message"></span>
+    </div>
+    
+    <footer class="bg-gray-800 text-white p-4 mt-8">
+      <div class="container mx-auto text-center">
+        <p>&copy; 2025 Markdown to web. Все права защищены.</p>
+      </div>
+    </footer>
+    
+    <!-- Подключение скриптов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/display/fullscreen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.3/marked.min.js"></script>
+    
+    <script>
+      // Инициализация CodeMirror
+      var editor = CodeMirror.fromTextArea(document.getElementById("markdown-editor"), {
+        mode: "markdown",
+        lineNumbers: true,
+        lineWrapping: true,
+        theme: document.documentElement.classList.contains('dark') ? "material" : "eclipse",
+        extraKeys: {
+          "F11": function(cm) {
+            cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+          },
+          "Esc": function(cm) {
+            if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+          }
+        }
+      });
+      
+      // Переключение между редактором и предпросмотром
+      document.getElementById('preview-btn').addEventListener('click', function() {
+        const editorContainer = document.getElementById('editor-container');
+        const previewContainer = document.getElementById('preview-container');
+        const previewBtn = document.getElementById('preview-btn');
+        
+        if (previewContainer.classList.contains('hidden')) {
+          // Показать предпросмотр
+          previewContainer.classList.remove('hidden');
+          updatePreview();
+          previewBtn.innerHTML = '<i class="fas fa-edit mr-2"></i>Редактировать';
+        } else {
+          // Скрыть предпросмотр
+          previewContainer.classList.add('hidden');
+          previewBtn.innerHTML = '<i class="fas fa-eye mr-2"></i>Предпросмотр';
+        }
+      });
+      
+      // Функция обновления предпросмотра
+      function updatePreview() {
+        const markdownContent = editor.getValue();
+        const previewElement = document.getElementById('markdown-preview');
+        previewElement.innerHTML = marked.parse(markdownContent);
+      }
+      
+      // Сохранение документа
+      document.getElementById('save-btn').addEventListener('click', function() {
+        const content = editor.getValue();
+        const documentId = '{{ document_id }}';
+        
+        fetch(`/save/${documentId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `content=${encodeURIComponent(content)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message, 'success');
+          } else {
+            showNotification(data.message, 'error');
+          }
+        })
+        .catch(error => {
+          showNotification('Ошибка при сохранении: ' + error, 'error');
+        });
+      });
+      
+      // Функция для отображения уведомлений
+      function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        
+        notification.className = 'notification';
+        notification.classList.add(`notification-${type}`);
+        notificationMessage.textContent = message;
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+      
+      // Вставка Markdown разметки
+      function insertMarkdown(before, after) {
+        const doc = editor.getDoc();
+        const cursor = doc.getCursor();
+        const selection = doc.getSelection();
+        
+        if (selection) {
+          doc.replaceSelection(before + selection + after);
+        } else {
+          doc.replaceRange(before + after, cursor);
+          doc.setCursor({
+            line: cursor.line,
+            ch: cursor.ch + before.length
+          });
+        }
+        editor.focus();
+      }
+      
+      // Вставка списка
+      function insertMarkdownList(prefix) {
+        const doc = editor.getDoc();
+        const cursor = doc.getCursor();
+        const selection = doc.getSelection();
+        
+        if (selection) {
+          const lines = selection.split('\n');
+          const formattedText = lines.map(line => prefix + line).join('\n');
+          doc.replaceSelection(formattedText);
+        } else {
+          doc.replaceRange(prefix, cursor);
+          doc.setCursor({
+            line: cursor.line,
+            ch: cursor.ch + prefix.length
+          });
+        }
+        editor.focus();
+      }
+      
+      // Вставка таблицы
+      function insertMarkdownTable() {
+        const tableTemplate = '| Заголовок 1 | Заголовок 2 | Заголовок 3 |\n| --- | --- | --- |\n| Ячейка 1 | Ячейка 2 | Ячейка 3 |\n| Ячейка 4 | Ячейка 5 | Ячейка 6 |';
+        const doc = editor.getDoc();
+        const cursor = doc.getCursor();
+        
+        doc.replaceRange('\n' + tableTemplate + '\n', cursor);
+        editor.focus();
+      }
+      
+      // Переключение темы
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      themeToggle.addEventListener('click', function() {
+        const html = document.documentElement;
+        
+        if (html.classList.contains('dark')) {
+          // Переключение на светлую тему
+          html.classList.remove('dark');
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          editor.setOption('theme', 'eclipse');
+          updateTheme('light');
+        } else {
+          // Переключение на темную тему
+          html.classList.add('dark');
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          editor.setOption('theme', 'material');
+          updateTheme('dark');
+        }
+      });
+      
+      // Обновление темы на сервере
+      function updateTheme(theme) {
+        fetch('/toggle-theme', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `theme=${theme}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.log('Ошибка при сохранении темы:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка при обновлении темы:', error);
+        });
+      }
+      
+      // Устанавливаем правильный значок темы при загрузке
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      });
+    </script>
+  </body>
+</html>

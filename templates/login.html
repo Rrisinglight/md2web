@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="{{ theme }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,86 @@
       body {
         font-family: "Noto Sans", sans-serif;
       }
+      
+      /* Стили для темной темы */
+      html.dark {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      html.dark body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-white {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-gray-100 {
+        background-color: #121212 !important;
+      }
+
+      .dark .text-gray-700 {
+        color: #d0d0d0 !important;
+      }
+
+      .dark .text-gray-600 {
+        color: #aaaaaa !important;
+      }
+
+      .dark .border {
+        border-color: #3a3a3a !important;
+      }
+
+      .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .dark .bg-red-100 {
+        background-color: #3f0404 !important;
+        color: #ffb0b0 !important;
+      }
+
+      .dark .text-red-700 {
+        color: #ffb0b0 !important;
+      }
+
+      .dark .border-red-500 {
+        border-color: #ffb0b0 !important;
+      }
+
+      .dark input {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+        border-color: #3a3a3a !important;
+      }
+
+      .dark input:focus {
+        border-color: #4a90e2 !important;
+      }
+      
+      .dark a.text-blue-600 {
+        color: #77b6ff !important;
+      }
+      
+      .dark a.text-blue-600:hover {
+        color: #a5c9ff !important;
+      }
+      
+      /* Переключатель темы */
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     </style>
   </head>
 
@@ -30,11 +110,16 @@
         <a href="{{ url_for('index') }}" class="text-xl font-bold"
           >Markdown to web</a
         >
-        <nav>
-          <a href="{{ url_for('register') }}" class="hover:text-gray-300"
-            >Создать аккаунт</a
-          >
-        </nav>
+        <div class="flex items-center">
+          <div class="theme-toggle mr-4" id="theme-toggle">
+            <i class="fas fa-moon text-yellow-300" id="theme-icon"></i>
+          </div>
+          <nav>
+            <a href="{{ url_for('register') }}" class="hover:text-gray-300"
+              >Создать аккаунт</a
+            >
+          </nav>
+        </div>
       </div>
     </header>
     <main class="container mx-auto p-4">
@@ -101,5 +186,57 @@
         <p>&copy; 2025 Markdown to web. Все права защищены.</p>
       </div>
     </footer>
+    
+    <script>
+      // Переключение темы
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      themeToggle.addEventListener('click', function() {
+        const html = document.documentElement;
+        
+        if (html.classList.contains('dark')) {
+          // Переключение на светлую тему
+          html.classList.remove('dark');
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+          updateTheme('light');
+        } else {
+          // Переключение на темную тему
+          html.classList.add('dark');
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+          updateTheme('dark');
+        }
+      });
+      
+      // Устанавливаем правильный значок темы при загрузке
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      });
+      
+      // Обновление темы на сервере
+      function updateTheme(theme) {
+        fetch('/toggle-theme', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `theme=${theme}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.log('Ошибка при сохранении темы:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка при обновлении темы:', error);
+        });
+      }
+    </script>
   </body>
 </html>

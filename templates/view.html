@@ -1,6 +1,5 @@
-<!-- templates/view.html -->
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="{{ theme }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,6 +15,10 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <style>
@@ -160,6 +163,102 @@
       .toc-h6 {
         margin-left: 5rem;
       }
+      
+      /* Стили для темной темы */
+      html.dark {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      html.dark body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-white {
+        background-color: #1e1e1e !important;
+        color: #e0e0e0;
+      }
+
+      .dark .bg-gray-100 {
+        background-color: #121212 !important;
+      }
+
+      .dark .bg-gray-200 {
+        background-color: #2d2d2d !important;
+      }
+      
+      .dark .bg-gray-600,
+      .dark .bg-gray-700 {
+        background-color: #383838 !important;
+      }
+
+      .dark .text-gray-700 {
+        color: #d0d0d0 !important;
+      }
+
+      .dark .text-gray-600 {
+        color: #aaaaaa !important;
+      }
+
+      .dark .border {
+        border-color: #3a3a3a !important;
+      }
+
+      .dark .shadow-md {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .dark .markdown-content h1 {
+        border-bottom-color: #3a3a3a;
+      }
+
+      .dark .markdown-content pre {
+        background-color: #1a1a1a;
+      }
+
+      .dark .markdown-content code {
+        background-color: #1a1a1a;
+      }
+
+      .dark .markdown-content blockquote {
+        border-left-color: #4a5568;
+        color: #aaaaaa;
+      }
+
+      .dark .markdown-content table th {
+        background-color: #2a2a2a;
+        border-color: #3a3a3a;
+      }
+
+      .dark .markdown-content table td {
+        border-color: #3a3a3a;
+      }
+
+      .dark .markdown-content table tr:nth-child(even) {
+        background-color: #2a2a2a;
+      }
+      
+      .dark a.text-blue-600 {
+        color: #77b6ff !important;
+      }
+      
+      .dark a.text-blue-600:hover {
+        color: #a5c9ff !important;
+      }
+      
+      /* Переключатель темы */
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     </style>
   </head>
 
@@ -167,23 +266,28 @@
     <header class="bg-gray-800 text-white p-4">
       <div class="container mx-auto flex justify-between items-center">
         <h1 class="text-xl font-bold">Markdown Converter</h1>
-        <nav>
-          {% if session.user_id %}
-          <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300"
-            >Профиль ({{ session.username }})</a
-          >
-          <a href="{{ url_for('logout') }}" class="hover:text-gray-300"
-            >Выйти</a
-          >
-          {% else %}
-          <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300"
-            >Войти</a
-          >
-          <a href="{{ url_for('register') }}" class="hover:text-gray-300"
-            >Регистрация</a
-          >
-          {% endif %}
-        </nav>
+        <div class="flex items-center">
+          <div class="theme-toggle mr-4" id="theme-toggle">
+            <i class="fas fa-moon text-yellow-300" id="theme-icon"></i>
+          </div>
+          <nav>
+            {% if session.user_id %}
+            <a href="{{ url_for('profile') }}" class="mr-4 hover:text-gray-300"
+              >Профиль ({{ session.username }})</a
+            >
+            <a href="{{ url_for('logout') }}" class="hover:text-gray-300"
+              >Выйти</a
+            >
+            {% else %}
+            <a href="{{ url_for('login') }}" class="mr-4 hover:text-gray-300"
+              >Войти</a
+            >
+            <a href="{{ url_for('register') }}" class="hover:text-gray-300"
+              >Регистрация</a
+            >
+            {% endif %}
+          </nav>
+        </div>
       </div>
     </header>
 
@@ -212,12 +316,21 @@
       <div class="flex-grow flex">
         <!-- Центральная колонка с содержимым документа -->
         <div class="flex-grow max-w-4xl mx-auto p-4">
+          <!-- Кнопка редактирования для владельца документа -->
+          {% if can_edit %}
+          <div class="mb-4 flex justify-end">
+            <a href="{{ url_for('edit_document', document_id=document_id) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-edit mr-2"></i>Редактировать документ
+            </a>
+          </div>
+          {% endif %}
+          
           <div class="bg-white rounded-lg shadow-md p-6 markdown-content">
             {{ html_content|safe }}
           </div>
         </div>
 
-        <!-- Правая колонка с оглавлением - изменённая ширина w-124 -->
+        <!-- Правая колонка с оглавлением -->
         <div class="w-96 p-4 hidden lg:block">
           <div class="bg-white rounded-lg shadow-md p-4 sticky top-4">
             <h3 class="text-lg font-bold mb-3 border-b pb-2">Содержание</h3>
@@ -245,7 +358,13 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", (event) => {
-        // Подсветка синтаксиса кода
+        // Подсветка синтаксиса кода с учетом темы
+        const isDarkTheme = document.documentElement.classList.contains('dark');
+        hljs.configure({
+          classPrefix: 'hljs-',
+          theme: isDarkTheme ? 'github-dark' : 'github'
+        });
+        
         document.querySelectorAll("pre code").forEach((block) => {
           hljs.highlightBlock(block);
         });
@@ -259,6 +378,56 @@
             const id = heading.textContent.toLowerCase().replace(/\s+/g, "-");
             heading.setAttribute("id", id);
           });
+          
+        // Переключение темы
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        if (themeToggle) {
+          themeToggle.addEventListener('click', function() {
+            const html = document.documentElement;
+            
+            if (html.classList.contains('dark')) {
+              // Переключение на светлую тему
+              html.classList.remove('dark');
+              themeIcon.classList.remove('fa-sun');
+              themeIcon.classList.add('fa-moon');
+              updateTheme('light');
+            } else {
+              // Переключение на темную тему
+              html.classList.add('dark');
+              themeIcon.classList.remove('fa-moon');
+              themeIcon.classList.add('fa-sun');
+              updateTheme('dark');
+            }
+          });
+          
+          // Устанавливаем правильный значок темы при загрузке
+          if (document.documentElement.classList.contains('dark')) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+          }
+        }
+        
+        // Обновление темы на сервере
+        function updateTheme(theme) {
+          fetch('/toggle-theme', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `theme=${theme}`
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (!data.success) {
+              console.log('Ошибка при сохранении темы:', data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка при обновлении темы:', error);
+          });
+        }
       });
     </script>
   </body>
