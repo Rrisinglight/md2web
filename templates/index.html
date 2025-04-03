@@ -229,7 +229,7 @@
                 Выбрать Markdown файл
               </label>
               <input type="file" id="markdown_file" name="markdown_file" class="hidden" accept=".md, .markdown, .txt">
-              <p class="mt-4 text-sm text-gray-500">Максимальный размер файла: 16MB</p>
+              <p class="mt-4 text-sm text-gray-500">Максимальный размер файла: 150MB</p>
               
               <!-- Скрытая текстовая область для вставки Markdown -->
               <textarea id="pasteArea" name="markdown_content"></textarea>
@@ -242,6 +242,13 @@
             <label for="additional_files" class="block text-gray-700 mb-2">Дополнительные файлы (опционально)</label>
             <p class="text-sm text-gray-600 mb-2">Загрузите изображения или другие файлы, на которые ссылается ваш Markdown-документ.</p>
             <input type="file" id="additional_files" name="additional_files" class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2" multiple>
+          </div>
+          
+          <!-- Добавленная кнопка для отправки формы -->
+          <div class="mb-6 text-center">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+              Загрузить файл
+            </button>
           </div>
           
           {% if not session.user_id %}
@@ -273,7 +280,7 @@
         </p>
       </div>
     </main>
-    <footer class="bg-gray-800 text-white p-4 mt-8">
+    <footer class="bg-gray-700 text-white p-4 mt-8">
       <div class="container mx-auto text-center">
         <p>&copy; 2025 Markdown to web. Все права защищены.</p>
       </div>
@@ -303,15 +310,86 @@
         
         if (e.dataTransfer.files.length) {
           fileInput.files = e.dataTransfer.files;
-          uploadForm.submit();
+          // Показываем имя выбранного файла вместо автоматической отправки
+          const fileName = e.dataTransfer.files[0].name;
+          showSelectedFile(fileName);
         }
       });
       
       fileInput.addEventListener('change', () => {
         if (fileInput.files.length) {
-          uploadForm.submit();
+          // Показываем имя выбранного файла вместо автоматической отправки
+          const fileName = fileInput.files[0].name;
+          showSelectedFile(fileName);
         }
       });
+      
+      // Функция для отображения имени выбранного файла
+      function showSelectedFile(fileName) {
+        // Создаем элемент для отображения информации о выбранном файле
+        const fileInfo = document.createElement('div');
+        fileInfo.className = 'mt-4 p-2 bg-blue-100 rounded text-blue-800';
+        fileInfo.innerHTML = `<i class="fas fa-file-alt mr-2"></i> Выбран файл: <strong>${fileName}</strong>`;
+        
+        // Сохраняем оригинальное содержимое, если оно еще не было сохранено
+        if (!dropZone.hasAttribute('data-original-content')) {
+          dropZone.setAttribute('data-original-content', dropZone.innerHTML);
+        }
+        
+        // Очищаем dropZone от текстового поля, если оно было активировано
+        if (document.getElementById('pasteArea').style.position === 'static') {
+          // Возвращаем оригинальное содержимое
+          dropZone.innerHTML = dropZone.getAttribute('data-original-content');
+          // Сбрасываем стили pasteArea
+          const newPasteArea = document.getElementById('pasteArea');
+          newPasteArea.style.position = 'fixed';
+          newPasteArea.style.left = '-9999px';
+          newPasteArea.style.top = '-9999px';
+          newPasteArea.style.width = '10px';
+          newPasteArea.style.height = '10px';
+          newPasteArea.style.opacity = '0';
+        }
+        
+        // Находим место для отображения информации о файле
+        const fileDisplay = document.querySelector('.file-info-display');
+        if (fileDisplay) {
+          fileDisplay.innerHTML = '';
+          fileDisplay.appendChild(fileInfo);
+        } else {
+          // Если элемент не существует, добавляем его после dropZone
+          const newFileDisplay = document.createElement('div');
+          newFileDisplay.className = 'file-info-display mt-4';
+          newFileDisplay.appendChild(fileInfo);
+          
+          dropZone.insertAdjacentElement('afterend', newFileDisplay);
+        }
+        
+        // Добавляем кнопку отмены выбора файла
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-2';
+        cancelButton.textContent = 'Отменить выбор';
+        cancelButton.type = 'button';
+        cancelButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          fileInput.value = ''; // Сбрасываем выбранный файл
+          // Скрываем информацию о файле
+          if (fileDisplay) {
+            fileDisplay.innerHTML = '';
+          } else {
+            const displayToRemove = document.querySelector('.file-info-display');
+            if (displayToRemove) {
+              displayToRemove.remove();
+            }
+          }
+        });
+        
+        // Добавляем кнопку к отображению файла
+        if (fileDisplay) {
+          fileDisplay.appendChild(cancelButton);
+        } else {
+          document.querySelector('.file-info-display').appendChild(cancelButton);
+        }
+      }
       
       // Универсальная обработка вставки
       
@@ -336,8 +414,16 @@
       
       // 2. Обработка клика на drop zone для вызова контекстного меню
       dropZone.addEventListener('click', (e) => {
-        // Проверяем, что клик был не на кнопке выбора файла
-        if (!e.target.closest('label[for="markdown_file"]')) {
+        // Проверяем, что клик был не на кнопке выбора файла и не связан с уже выбранным файлом
+        const isClickOnFileSelector = e.target.closest('label[for="markdown_file"]');
+        const isFileAlreadySelected = fileInput.files && fileInput.files.length > 0;
+        
+        if (!isClickOnFileSelector && !isFileAlreadySelected) {
+          // Сохраняем оригинальное содержимое
+          if (!dropZone.hasAttribute('data-original-content')) {
+            dropZone.setAttribute('data-original-content', dropZone.innerHTML);
+          }
+          
           // Фокусируем pasteArea, чтобы можно было вставить через меню
           pasteArea.style.position = 'static';
           pasteArea.style.opacity = '1';
@@ -350,7 +436,6 @@
           pasteArea.classList.add('w-full');
           
           // Заменяем содержимое dropZone
-          const originalContent = dropZone.innerHTML;
           dropZone.innerHTML = '';
           dropZone.appendChild(pasteArea);
           
@@ -368,24 +453,30 @@
           cancelButton.className = 'bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2';
           cancelButton.textContent = 'Отмена';
           cancelButton.type = 'button';
-          cancelButton.addEventListener('click', () => {
+          cancelButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             // Возвращаем оригинальное содержимое
-            dropZone.innerHTML = originalContent;
+            dropZone.innerHTML = dropZone.getAttribute('data-original-content');
             // Возвращаем скрытую область на место
             const newPasteArea = document.getElementById('pasteArea');
-            newPasteArea.style.position = 'fixed';
-            newPasteArea.style.left = '-9999px';
-            newPasteArea.style.top = '-9999px';
-            newPasteArea.style.width = '10px';
-            newPasteArea.style.height = '10px';
-            newPasteArea.style.opacity = '0';
+            if (newPasteArea) {
+              newPasteArea.style.position = 'fixed';
+              newPasteArea.style.left = '-9999px';
+              newPasteArea.style.top = '-9999px';
+              newPasteArea.style.width = '10px';
+              newPasteArea.style.height = '10px';
+              newPasteArea.style.opacity = '0';
+            }
           });
           
           const submitButton = document.createElement('button');
           submitButton.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded';
           submitButton.textContent = 'Продолжить';
           submitButton.type = 'button';
-          submitButton.addEventListener('click', () => {
+          submitButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (pasteArea.value.trim() !== '') {
               pasteAction.value = 'true';
               uploadForm.submit();

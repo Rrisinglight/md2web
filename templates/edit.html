@@ -368,6 +368,19 @@
           </div>
         </div>
         
+        <!-- Форма для загрузки дополнительных файлов -->
+        <div class="mb-4 p-3 border border-gray-300 rounded-lg dark:border-gray-600">
+          <h3 class="text-lg font-medium mb-2">Загрузка дополнительных файлов</h3>
+          <form id="upload-files-form" enctype="multipart/form-data" class="flex flex-col md:flex-row">
+            <input type="file" id="additional_files" name="additional_files" class="mb-2 md:mb-0 md:mr-2 p-2 border border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700" multiple>
+            <button type="button" id="upload-files-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+              <i class="fas fa-upload mr-1"></i> Загрузить файлы
+            </button>
+          </form>
+          <div id="upload-status" class="mt-2 text-sm hidden"></div>
+          <div id="uploaded-files" class="mt-2 text-sm"></div>
+        </div>
+        
         <div class="toolbar flex flex-wrap mb-2 bg-gray-200 p-2 rounded dark:bg-gray-700">
           <div class="toolbar-btn" title="Заголовок 1" onclick="insertMarkdown('# ', '')"><i class="fas fa-heading"></i>1</div>
           <div class="toolbar-btn" title="Заголовок 2" onclick="insertMarkdown('## ', '')"><i class="fas fa-heading"></i>2</div>
@@ -624,6 +637,124 @@
           themeIcon.classList.remove('fa-moon');
           themeIcon.classList.add('fa-sun');
         }
+      });
+      
+      // Функция для загрузки дополнительных файлов
+      document.getElementById('upload-files-btn').addEventListener('click', function() {
+        const documentId = '{{ document_id }}';
+        const filesInput = document.getElementById('additional_files');
+        const uploadStatus = document.getElementById('upload-status');
+        const uploadedFiles = document.getElementById('uploaded-files');
+        
+        if (filesInput.files.length === 0) {
+          showNotification('Не выбраны файлы для загрузки', 'error');
+          return;
+        }
+        
+        const formData = new FormData();
+        for (let i = 0; i < filesInput.files.length; i++) {
+          formData.append('files[]', filesInput.files[i]);
+        }
+        
+        // Показываем индикатор загрузки
+        uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Загрузка файлов...';
+        uploadStatus.classList.remove('hidden', 'text-red-500', 'text-green-500');
+        uploadStatus.classList.add('text-blue-500');
+        
+        fetch(`/upload_additional/${documentId}`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            uploadStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Файлы успешно загружены';
+            uploadStatus.classList.remove('text-blue-500', 'text-red-500', 'hidden');
+            uploadStatus.classList.add('text-green-500');
+            
+            // Обновляем список загруженных файлов
+            const filesList = data.files.map(file => 
+              `<div class="mb-1">
+                <span class="font-medium">${file}</span> - 
+                <button class="text-blue-500 hover:text-blue-700" onclick="insertImageMarkdown('${file}')">
+                  Вставить в документ
+                </button>
+              </div>`
+            ).join('');
+            
+            uploadedFiles.innerHTML = `<div class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded">
+              <h4 class="font-medium mb-1">Доступные файлы:</h4>
+              ${filesList}
+            </div>`;
+            
+            // Очищаем поле выбора файлов
+            filesInput.value = '';
+            
+            showNotification('Файлы успешно загружены', 'success');
+          } else {
+            uploadStatus.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i> Ошибка: ${data.message}`;
+            uploadStatus.classList.remove('text-blue-500', 'text-green-500', 'hidden');
+            uploadStatus.classList.add('text-red-500');
+            showNotification(`Ошибка при загрузке файлов: ${data.message}`, 'error');
+          }
+        })
+        .catch(error => {
+          uploadStatus.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i> Ошибка: ${error}`;
+          uploadStatus.classList.remove('text-blue-500', 'text-green-500', 'hidden');
+          uploadStatus.classList.add('text-red-500');
+          showNotification(`Ошибка при загрузке файлов: ${error}`, 'error');
+        });
+      });
+      
+      // Функция для вставки разметки изображения
+      function insertImageMarkdown(filename) {
+        const documentId = '{{ document_id }}';
+        const imageMarkdown = `![${filename}](/file/${documentId}/${filename})`;
+        
+        const doc = editor.getDoc();
+        const cursor = doc.getCursor();
+        doc.replaceRange(imageMarkdown, cursor);
+        
+        // Обновляем превью
+        updatePreview();
+        
+        // Фокусируемся на редакторе
+        editor.focus();
+      }
+      
+      // Загрузка существующих файлов при инициализации страницы
+      function loadExistingFiles() {
+        const documentId = '{{ document_id }}';
+        const uploadedFiles = document.getElementById('uploaded-files');
+        
+        fetch(`/document_files/${documentId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.files.length > 0) {
+              const filesList = data.files.map(file => 
+                `<div class="mb-1">
+                  <span class="font-medium">${file}</span> - 
+                  <button class="text-blue-500 hover:text-blue-700" onclick="insertImageMarkdown('${file}')">
+                    Вставить в документ
+                  </button>
+                </div>`
+              ).join('');
+              
+              uploadedFiles.innerHTML = `<div class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                <h4 class="font-medium mb-1">Доступные файлы:</h4>
+                ${filesList}
+              </div>`;
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка при загрузке списка файлов:', error);
+          });
+      }
+      
+      // Вызываем загрузку существующих файлов при загрузке страницы
+      window.addEventListener('DOMContentLoaded', function() {
+        loadExistingFiles();
+        updatePreview();
       });
     </script>
   </body>

@@ -21,9 +21,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = os.urandom(8)
+app.secret_key = 'mark2web_static_secret_key_for_sessions'
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 150 * 1024 * 1024  # 150MB max file size
 app.config['DATABASE'] = 'database.db'
 app.config['SERVER_URL'] = '202.181.188.118'  # Используем ваш сервер
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(
@@ -332,9 +332,22 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
+        # Добавляем логирование для отладки
+        app.logger.info(f'Данные формы: {request.form}')
+        app.logger.info(f'Файлы: {list(request.files.keys())}')
+        
+        has_markdown_file = 'markdown_file' in request.files and request.files['markdown_file'].filename
+        has_additional_files = False
+        
+        if 'additional_files' in request.files:
+            for file in request.files.getlist('additional_files'):
+                if file.filename:
+                    has_additional_files = True
+                    break
+        
         # Проверка, есть ли загруженный файл
-        if 'markdown_file' in request.files and request.files['markdown_file'].filename:
-            app.logger.info('Получен запрос на загрузку файла')
+        if has_markdown_file:
+            app.logger.info('Получен запрос на загрузку markdown файла')
             markdown_file = request.files['markdown_file']
 
             if markdown_file.filename == '':
@@ -346,16 +359,26 @@ def upload_file():
                 app.config['UPLOAD_FOLDER'], document_id)
             os.makedirs(user_folder, exist_ok=True)
 
-            filename = secure_filename(markdown_file.filename)
-            markdown_path = os.path.join(user_folder, filename)
+            # Сохраняем имя файла без изменений для отображения
+            original_filename = markdown_file.filename
+            # Обеспечиваем безопасность имени файла при сохранении
+            safe_filename = secure_filename(original_filename)
+            
+            markdown_path = os.path.join(user_folder, safe_filename)
             markdown_file.save(markdown_path)
+            
+            app.logger.info(f'Сохранен markdown файл: {safe_filename} (оригинальное имя: {original_filename})')
 
-            additional_files = request.files.getlist('additional_files')
-            for file in additional_files:
-                if file.filename:
-                    file_path = os.path.join(
-                        user_folder, secure_filename(file.filename))
-                    file.save(file_path)
+            # Обрабатываем дополнительные файлы
+            if 'additional_files' in request.files:
+                additional_files = request.files.getlist('additional_files')
+                for file in additional_files:
+                    if file.filename:
+                        original_add_filename = file.filename
+                        safe_add_filename = secure_filename(original_add_filename)
+                        file_path = os.path.join(user_folder, safe_add_filename)
+                        file.save(file_path)
+                        app.logger.info(f'Сохранен дополнительный файл: {safe_add_filename} (оригинальное имя: {original_add_filename})')
 
             user_id = session.get('user_id')
             conn = sqlite3.connect(app.config['DATABASE'])
@@ -368,7 +391,7 @@ def upload_file():
             cursor.execute(
                 'INSERT INTO documents (user_id, document_id, filename, expires_at) '
                 'VALUES (?, ?, ?, ?)',
-                (user_id, document_id, filename, expires_at)
+                (user_id, document_id, safe_filename, expires_at)
             )
             conn.commit()
             conn.close()
@@ -380,7 +403,7 @@ def upload_file():
                 return redirect(url_for('edit_document', document_id=document_id))
                 
             app.logger.info(
-                f'Файл успешно загружен: {filename}, ID: {document_id}')
+                f'Файл успешно загружен: {original_filename}, ID: {document_id}')
             return redirect(url_for('publish_document', document_id=document_id))
 
         # Вставка через Ctrl+V или другой источник markdown текста
@@ -404,7 +427,12 @@ def upload_file():
             app.logger.info(
                 f'Перенаправление на страницу публикации: {document_id}')
             return redirect(url_for('publish_document', document_id=document_id))
-
+        
+        # Если есть только дополнительные файлы без markdown файла, сообщаем об ошибке
+        elif has_additional_files:
+            app.logger.warning('Загружены только дополнительные файлы без markdown файла')
+            flash('Необходимо загрузить markdown файл вместе с дополнительными файлами')
+            return redirect(url_for('index'))
         else:
             app.logger.warning('Файл не выбран и текст не введен')
             flash('Необходимо загрузить файл или ввести текст')
@@ -664,6 +692,155 @@ def toggle_theme():
     except Exception as e:
         app.logger.error(f'Ошибка при изменении темы: {str(e)}')
         return jsonify({'success': False, 'message': 'Ошибка при изменении темы'})
+
+
+@app.route('/upload_additional/<document_id>', methods=['POST'])
+def upload_additional_files(document_id):
+    """Обработчик для загрузки дополнительных файлов в существующий документ."""
+    try:
+        # Проверка прав доступа
+        conn = sqlite3.connect(app.config['DATABASE'])
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT user_id FROM documents WHERE document_id = ?',
+            (document_id,)
+        )
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result:
+            app.logger.warning(f'Документ не найден при загрузке файлов: {document_id}')
+            return jsonify({
+                'success': False, 
+                'message': 'Документ не найден'
+            })
+
+        user_id = result[0]
+        current_user_id = session.get('user_id')
+        
+        # Разрешаем загрузку, если:
+        # 1. Документ не привязан к пользователю (user_id is None)
+        # 2. Текущий пользователь является автором документа
+        if user_id is not None and current_user_id != user_id:
+            app.logger.warning(f'Попытка загрузки файлов в чужой документ: {document_id}')
+            return jsonify({
+                'success': False, 
+                'message': 'У вас нет прав для изменения этого документа'
+            })
+
+        # Проверяем, есть ли файлы в запросе
+        if 'files[]' not in request.files:
+            return jsonify({
+                'success': False, 
+                'message': 'Не выбраны файлы для загрузки'
+            })
+
+        # Путь к директории документа
+        document_folder = os.path.join(app.config['UPLOAD_FOLDER'], document_id)
+        if not os.path.exists(document_folder):
+            os.makedirs(document_folder, exist_ok=True)
+
+        # Список успешно загруженных файлов
+        uploaded_files = []
+        
+        # Обрабатываем каждый файл
+        files = request.files.getlist('files[]')
+        for file in files:
+            if file and file.filename:
+                # Сохраняем оригинальное имя для отображения
+                original_filename = file.filename
+                # Безопасное имя для сохранения
+                safe_filename = secure_filename(original_filename)
+                
+                # Сохраняем файл
+                file_path = os.path.join(document_folder, safe_filename)
+                file.save(file_path)
+                uploaded_files.append(safe_filename)
+                app.logger.info(f'Загружен дополнительный файл {safe_filename} для документа {document_id}')
+
+        # Если ничего не было загружено
+        if not uploaded_files:
+            return jsonify({
+                'success': False, 
+                'message': 'Не удалось загрузить файлы'
+            })
+
+        return jsonify({
+            'success': True, 
+            'message': 'Файлы успешно загружены',
+            'files': uploaded_files
+        })
+
+    except Exception as e:
+        app.logger.error(f'Ошибка при загрузке дополнительных файлов: {str(e)}')
+        return jsonify({
+            'success': False, 
+            'message': f'Ошибка при загрузке файлов: {str(e)}'
+        })
+
+
+@app.route('/document_files/<document_id>', methods=['GET'])
+def get_document_files(document_id):
+    """Получение списка файлов, связанных с документом."""
+    try:
+        # Проверка прав доступа
+        conn = sqlite3.connect(app.config['DATABASE'])
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT user_id FROM documents WHERE document_id = ?',
+            (document_id,)
+        )
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result:
+            app.logger.warning(f'Документ не найден при получении списка файлов: {document_id}')
+            return jsonify({
+                'success': False, 
+                'message': 'Документ не найден'
+            })
+
+        user_id = result[0]
+        current_user_id = session.get('user_id')
+        
+        # Разрешаем просмотр списка файлов, если:
+        # 1. Документ не привязан к пользователю (user_id is None)
+        # 2. Текущий пользователь является автором документа
+        if user_id is not None and current_user_id != user_id:
+            app.logger.warning(f'Попытка просмотра файлов чужого документа: {document_id}')
+            return jsonify({
+                'success': False, 
+                'message': 'У вас нет прав для просмотра файлов этого документа'
+            })
+
+        # Получаем список файлов в директории документа
+        document_folder = os.path.join(app.config['UPLOAD_FOLDER'], document_id)
+        
+        if not os.path.exists(document_folder):
+            return jsonify({
+                'success': True, 
+                'files': []
+            })
+        
+        # Получаем список файлов
+        files = os.listdir(document_folder)
+        
+        # Фильтруем по изображениям и другим медиа-файлам
+        media_files = [f for f in files if f.lower().endswith(
+            ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.mp4', '.webp', '.pdf')
+        )]
+        
+        return jsonify({
+            'success': True, 
+            'files': media_files
+        })
+        
+    except Exception as e:
+        app.logger.error(f'Ошибка при получении списка файлов документа: {str(e)}')
+        return jsonify({
+            'success': False, 
+            'message': f'Ошибка при получении списка файлов: {str(e)}'
+        })
 
 
 @app.route('/delete/<document_id>', methods=['POST'])
