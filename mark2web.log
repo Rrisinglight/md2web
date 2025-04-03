@@ -792,3 +792,173 @@
 2025-04-03 07:45:37,540 - app - INFO - Очистка завершена, удалено документов: 0
 2025-04-03 07:45:40,926 - app - INFO - Запрос главной страницы, пользователь: Гость
 2025-04-03 07:45:44,329 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 07:54:11,572 - app - INFO - Mark2Web запущен
+2025-04-03 07:54:11,572 - app - INFO - Инициализация базы данных
+2025-04-03 07:54:11,573 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 07:54:11,575 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 07:54:11,604 - app - INFO - Mark2Web запущен
+2025-04-03 07:54:11,605 - app - INFO - Инициализация базы данных
+2025-04-03 07:54:11,605 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 07:54:11,608 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 07:54:11,703 - app - INFO - Mark2Web запущен
+2025-04-03 07:54:11,703 - app - INFO - Инициализация базы данных
+2025-04-03 07:54:11,704 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 07:54:11,707 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 07:54:11,732 - app - INFO - Mark2Web запущен
+2025-04-03 07:54:11,733 - app - INFO - Инициализация базы данных
+2025-04-03 07:54:11,733 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 07:54:11,736 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 07:54:15,071 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 07:54:30,557 - app - INFO - =============== НАЧАЛО ЗАГРУЗКИ ФАЙЛА ===============
+2025-04-03 07:54:30,571 - app - INFO - Данные формы: ImmutableMultiDict([('markdown_content', ''), ('paste_action', 'false'), ('edit_after', 'true')])
+2025-04-03 07:54:30,571 - app - INFO - Файлы в запросе: ['markdown_file', 'additional_files']
+2025-04-03 07:54:30,571 - app - INFO - Заголовки запроса:
+2025-04-03 07:54:30,571 - app - INFO -   Host: mark2web.ru
+2025-04-03 07:54:30,571 - app - INFO -   X-Real-Ip: 176.215.176.82
+2025-04-03 07:54:30,571 - app - INFO -   X-Forwarded-For: 176.215.176.82
+2025-04-03 07:54:30,571 - app - INFO -   X-Forwarded-Proto: https
+2025-04-03 07:54:30,571 - app - INFO -   Connection: close
+2025-04-03 07:54:30,571 - app - INFO -   Content-Length: 5616258
+2025-04-03 07:54:30,571 - app - INFO -   Cache-Control: max-age=0
+2025-04-03 07:54:30,571 - app - INFO -   Sec-Ch-Ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
+2025-04-03 07:54:30,571 - app - INFO -   Sec-Ch-Ua-Mobile: ?0
+2025-04-03 07:54:30,571 - app - INFO -   Sec-Ch-Ua-Platform: "Windows"
+2025-04-03 07:54:30,571 - app - INFO -   Origin: https://mark2web.ru
+2025-04-03 07:54:30,571 - app - INFO -   Dnt: 1
+2025-04-03 07:54:30,571 - app - INFO -   Upgrade-Insecure-Requests: 1
+2025-04-03 07:54:30,571 - app - INFO -   Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySLBAcdr2D3vt3TNn
+2025-04-03 07:54:30,572 - app - INFO -   User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+2025-04-03 07:54:30,572 - app - INFO -   Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+2025-04-03 07:54:30,572 - app - INFO -   Sec-Fetch-Site: same-origin
+2025-04-03 07:54:30,572 - app - INFO -   Sec-Fetch-Mode: navigate
+2025-04-03 07:54:30,572 - app - INFO -   Sec-Fetch-User: ?1
+2025-04-03 07:54:30,572 - app - INFO -   Sec-Fetch-Dest: document
+2025-04-03 07:54:30,572 - app - INFO -   Referer: https://mark2web.ru/
+2025-04-03 07:54:30,572 - app - INFO -   Accept-Encoding: gzip, deflate, br, zstd
+2025-04-03 07:54:30,572 - app - INFO -   Accept-Language: en-US,en;q=0.9,ru-RU;q=0.8,ru;q=0.7
+2025-04-03 07:54:30,572 - app - INFO - Content-Type: multipart/form-data; boundary=----WebKitFormBoundarySLBAcdr2D3vt3TNn
+2025-04-03 07:54:30,572 - app - INFO - Метод запроса: POST
+2025-04-03 07:54:30,572 - app - INFO - Размер запроса: 5616258 байт
+2025-04-03 07:54:30,572 - app - INFO - [DEBUG] markdown_file: "Подробный план.md", preview: b'## \xd0\x9c\xd0\xbe\xd1\x81\xd0\xba\xd0\xb2\xd0\...
+2025-04-03 07:54:30,572 - app - INFO - [DEBUG] Кол-во дополнительных файлов: 3
+2025-04-03 07:54:30,572 - app - INFO - Проверка наличия файлов: markdown=Подробный план.md, additional=True
+2025-04-03 07:54:30,572 - app - INFO - Сгенерирован документ ID=63a5ca8e-5c6b-480c-844e-39f51edd028c
+2025-04-03 07:54:30,572 - app - INFO - Markdown файл "Подробный план.md" сохранен как "md"
+2025-04-03 07:54:30,574 - app - INFO -   Доп. файл "Дача Шаляпина.png" сохранен как "png"
+2025-04-03 07:54:30,575 - app - INFO -   Доп. файл "Кисловодский парк.png" сохранен как "png"
+2025-04-03 07:54:30,578 - app - INFO -   Доп. файл "Нарзанная галерея.png" сохранен как "png"
+2025-04-03 07:54:30,578 - app - INFO - Всего дополнительных файлов: 3
+2025-04-03 07:55:21,260 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:02:52,308 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:03:11,170 - app - INFO - Запрос главной страницы, пользователь: risinglight
+2025-04-03 08:10:30,092 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:18:18,906 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:25:16,850 - app - INFO - Mark2Web запущен
+2025-04-03 08:25:16,850 - app - INFO - Инициализация базы данных
+2025-04-03 08:25:16,851 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:25:16,853 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:25:16,875 - app - INFO - Mark2Web запущен
+2025-04-03 08:25:16,875 - app - INFO - Инициализация базы данных
+2025-04-03 08:25:16,876 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:25:16,878 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:25:16,918 - app - INFO - Mark2Web запущен
+2025-04-03 08:25:16,918 - app - INFO - Инициализация базы данных
+2025-04-03 08:25:16,918 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:25:16,921 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:25:17,015 - app - INFO - Mark2Web запущен
+2025-04-03 08:25:17,016 - app - INFO - Инициализация базы данных
+2025-04-03 08:25:17,017 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:25:17,019 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:25:20,988 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:26:03,225 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:27:09,570 - app - INFO - Mark2Web запущен
+2025-04-03 08:27:09,570 - app - INFO - Инициализация базы данных
+2025-04-03 08:27:09,571 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:27:09,573 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:27:09,649 - app - INFO - Mark2Web запущен
+2025-04-03 08:27:09,649 - app - INFO - Инициализация базы данных
+2025-04-03 08:27:09,650 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:27:09,652 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:27:09,735 - app - INFO - Mark2Web запущен
+2025-04-03 08:27:09,735 - app - INFO - Инициализация базы данных
+2025-04-03 08:27:09,736 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:27:09,738 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:27:09,770 - app - INFO - Mark2Web запущен
+2025-04-03 08:27:09,770 - app - INFO - Инициализация базы данных
+2025-04-03 08:27:09,771 - app - INFO - Запуск процедуры очистки истекших документов
+2025-04-03 08:27:09,773 - app - INFO - Очистка завершена, удалено документов: 0
+2025-04-03 08:27:12,058 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:27:23,867 - app - INFO - =============== НАЧАЛО ЗАГРУЗКИ ФАЙЛА ===============
+2025-04-03 08:27:23,885 - app - INFO - Данные формы: ImmutableMultiDict([('markdown_content', ''), ('paste_action', 'false'), ('edit_after', 'true'), ('selected_files_json', '{"markdown":"Подробный план.md","additional":["Дача Шаляпина.png","Кисловодский парк.png","Нарзанная галерея.png"]}')])
+2025-04-03 08:27:23,886 - app - INFO - Файлы в запросе: ['markdown_file', 'additional_files']
+2025-04-03 08:27:23,886 - app - INFO - Заголовки запроса:
+2025-04-03 08:27:23,886 - app - INFO -   Host: mark2web.ru
+2025-04-03 08:27:23,886 - app - INFO -   X-Real-Ip: 176.215.176.82
+2025-04-03 08:27:23,886 - app - INFO -   X-Forwarded-For: 176.215.176.82
+2025-04-03 08:27:23,886 - app - INFO -   X-Forwarded-Proto: https
+2025-04-03 08:27:23,886 - app - INFO -   Connection: close
+2025-04-03 08:27:23,886 - app - INFO -   Content-Length: 5616536
+2025-04-03 08:27:23,887 - app - INFO -   Cache-Control: max-age=0
+2025-04-03 08:27:23,887 - app - INFO -   Sec-Ch-Ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
+2025-04-03 08:27:23,887 - app - INFO -   Sec-Ch-Ua-Mobile: ?0
+2025-04-03 08:27:23,887 - app - INFO -   Sec-Ch-Ua-Platform: "Windows"
+2025-04-03 08:27:23,887 - app - INFO -   Origin: https://mark2web.ru
+2025-04-03 08:27:23,887 - app - INFO -   Dnt: 1
+2025-04-03 08:27:23,887 - app - INFO -   Upgrade-Insecure-Requests: 1
+2025-04-03 08:27:23,887 - app - INFO -   Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryef2CtIZosfcejC5d
+2025-04-03 08:27:23,888 - app - INFO -   User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+2025-04-03 08:27:23,888 - app - INFO -   Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+2025-04-03 08:27:23,888 - app - INFO -   Sec-Fetch-Site: same-origin
+2025-04-03 08:27:23,888 - app - INFO -   Sec-Fetch-Mode: navigate
+2025-04-03 08:27:23,888 - app - INFO -   Sec-Fetch-User: ?1
+2025-04-03 08:27:23,888 - app - INFO -   Sec-Fetch-Dest: document
+2025-04-03 08:27:23,888 - app - INFO -   Referer: https://mark2web.ru/
+2025-04-03 08:27:23,888 - app - INFO -   Accept-Encoding: gzip, deflate, br, zstd
+2025-04-03 08:27:23,888 - app - INFO -   Accept-Language: en-US,en;q=0.9,ru-RU;q=0.8,ru;q=0.7
+2025-04-03 08:27:23,888 - app - INFO - Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryef2CtIZosfcejC5d
+2025-04-03 08:27:23,888 - app - INFO - Метод запроса: POST
+2025-04-03 08:27:23,888 - app - INFO - Размер запроса: 5616536 байт
+2025-04-03 08:27:23,888 - app - INFO - [DEBUG] markdown_file: "Подробный план.md", preview: b'## \xd0\x9c\xd0\xbe\xd1\x81\xd0\xba\xd0\xb2\xd0\...
+2025-04-03 08:27:23,888 - app - INFO - [DEBUG] Кол-во дополнительных файлов: 3
+2025-04-03 08:27:23,889 - app - INFO - Проверка наличия файлов: markdown=Подробный план.md, additional=True
+2025-04-03 08:27:23,889 - app - INFO - Сгенерирован документ ID=17c6370b-0c4b-4817-9c3f-282f131ebd4d
+2025-04-03 08:27:23,889 - app - INFO - Markdown файл "Подробный план.md" сохранен как "md"
+2025-04-03 08:27:23,890 - app - INFO -   Доп. файл "Дача Шаляпина.png" сохранен как "png"
+2025-04-03 08:27:23,892 - app - INFO -   Доп. файл "Кисловодский парк.png" сохранен как "png"
+2025-04-03 08:27:23,895 - app - INFO -   Доп. файл "Нарзанная галерея.png" сохранен как "png"
+2025-04-03 08:27:23,895 - app - INFO - Всего дополнительных файлов: 3
+2025-04-03 08:27:27,769 - app - INFO - Запрос главной страницы, пользователь: Гость
+2025-04-03 08:28:05,388 - app - INFO - =============== НАЧАЛО ЗАГРУЗКИ ФАЙЛА ===============
+2025-04-03 08:28:05,390 - app - INFO - Данные формы: ImmutableMultiDict([('markdown_content', 'Let me continue with the JavaScript part of the improved HTML template:\r\n\r\nLet me explain the improvements I\'ve made to the main page:\r\n\r\n## Key Changes to the Main Page\r\n\r\n1. **Simplified File Upload Process**\r\n   - Created a cleaner, more attractive upload area\r\n   - Made the entire upload area clickable to select files\r\n   - Improved visual design with better icons and spacing\r\n\r\n2. **Unified File Selection**\r\n   - Now users can select all files at once (both Markdown and supporting files)\r\n   - The system automatically identifies which is the Markdown file (first .md, .markdown or .txt file)\r\n   - All other files are treated as additional files\r\n\r\n3. **Enhanced Paste Functionality (Ctrl+V)**\r\n   - The paste area now clearly indicates when text has been pasted\r\n   - Shows character count for pasted content\r\n   - Better visual feedback for pasted content\r\n\r\n4. **Improved File Management**\r\n   - Added a clear file preview area that shows:\r\n     - File names with appropriate icons\r\n     - File sizes in readable format\r\n     - File type indicators with color coding\r\n   - Added ability to remove individual files or clear all files\r\n\r\n5. **Visual Enhancements**\r\n   - Added upload progress indicator\r\n   - Improved button styling with consistent design\r\n   - Added animations and hover effects\r\n   - Better responsiveness for mobile devices\r\n\r\n6. **Feature Highlights Section**\r\n   - Replaced the "What is Markdown?" section with an attractive feature grid\r\n   - Each feature has an icon, title, and brief description\r\n   - Improved styling with hover effects\r\n\r\n7. **Removed Registration Notice**\r\n   - Eliminated the notice about 3-day document availability without registration\r\n   - This will only appear after publication as requested\r\n\r\nThis redesigned page offers a much better user experience with:\r\n- Clearer visual guidance\r\n- Simplified workflow\r\n- Better feedback during the upload process\r\n- More attractive presentation of features\r\n- Proper organization of files\r\n\r\nThe new design focuses on making the upload process as intuitive as possible while maintaining all the functionality of the original page.\r\n\r\nWould you like me to explain any particular aspect of the redesign in more detail?'), ('paste_action', 'true'), ('edit_after', 'true'), ('selected_files_json', '')])
+2025-04-03 08:28:05,390 - app - INFO - Файлы в запросе: ['markdown_file', 'additional_files']
+2025-04-03 08:28:05,390 - app - INFO - Заголовки запроса:
+2025-04-03 08:28:05,390 - app - INFO -   Host: mark2web.ru
+2025-04-03 08:28:05,390 - app - INFO -   X-Real-Ip: 176.215.176.82
+2025-04-03 08:28:05,390 - app - INFO -   X-Forwarded-For: 176.215.176.82
+2025-04-03 08:28:05,390 - app - INFO -   X-Forwarded-Proto: https
+2025-04-03 08:28:05,391 - app - INFO -   Connection: close
+2025-04-03 08:28:05,391 - app - INFO -   Content-Length: 2986
+2025-04-03 08:28:05,391 - app - INFO -   Cache-Control: max-age=0
+2025-04-03 08:28:05,391 - app - INFO -   Sec-Ch-Ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"
+2025-04-03 08:28:05,391 - app - INFO -   Sec-Ch-Ua-Mobile: ?0
+2025-04-03 08:28:05,391 - app - INFO -   Sec-Ch-Ua-Platform: "Windows"
+2025-04-03 08:28:05,391 - app - INFO -   Origin: https://mark2web.ru
+2025-04-03 08:28:05,391 - app - INFO -   Dnt: 1
+2025-04-03 08:28:05,391 - app - INFO -   Upgrade-Insecure-Requests: 1
+2025-04-03 08:28:05,392 - app - INFO -   Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryWoT9TJW2LJzfXB4j
+2025-04-03 08:28:05,392 - app - INFO -   User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36
+2025-04-03 08:28:05,392 - app - INFO -   Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+2025-04-03 08:28:05,392 - app - INFO -   Sec-Fetch-Site: same-origin
+2025-04-03 08:28:05,392 - app - INFO -   Sec-Fetch-Mode: navigate
+2025-04-03 08:28:05,392 - app - INFO -   Sec-Fetch-User: ?1
+2025-04-03 08:28:05,392 - app - INFO -   Sec-Fetch-Dest: document
+2025-04-03 08:28:05,392 - app - INFO -   Referer: https://mark2web.ru/
+2025-04-03 08:28:05,392 - app - INFO -   Accept-Encoding: gzip, deflate, br, zstd
+2025-04-03 08:28:05,393 - app - INFO -   Accept-Language: en-US,en;q=0.9,ru-RU;q=0.8,ru;q=0.7
+2025-04-03 08:28:05,393 - app - INFO - Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryWoT9TJW2LJzfXB4j
+2025-04-03 08:28:05,393 - app - INFO - Метод запроса: POST
+2025-04-03 08:28:05,393 - app - INFO - Размер запроса: 2986 байт
+2025-04-03 08:28:05,393 - app - WARNING - markdown_file присутствует, но имя файла пустое: 
+2025-04-03 08:28:05,393 - app - INFO - [DEBUG] Кол-во дополнительных файлов: 1
+2025-04-03 08:28:05,393 - app - INFO - Проверка наличия файлов: markdown=, additional=False
+2025-04-03 08:28:05,395 - app - INFO - Сохранен новый markdown документ: 742fd1af-c5d4-427b-a871-2849f0f8f094, пользователь: None

@@ -181,6 +181,47 @@
           opacity: 1;
         }
       }
+
+      /* Улучшенные стили для кнопок */
+      .btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition duration-200;
+      }
+
+      .btn-success {
+        @apply bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-200;
+      }
+
+      .btn-secondary {
+        @apply bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded transition duration-200;
+      }
+
+      .feature-card {
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+      }
+
+      /* Индикатор загрузки */
+      .upload-progress {
+        height: 4px;
+        background-color: #e0e0e0;
+        margin-top: 10px;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .upload-progress-bar {
+        height: 100%;
+        background-color: #3b82f6;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .dark .upload-progress {
+        background-color: #333;
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen">
@@ -214,70 +255,109 @@
       {% endif %} 
       {% endwith %}
       
-      <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto mb-8">
-        <h2 class="text-2xl font-semibold mb-6 text-center">Конвертер Markdown в HTML</h2>
-        
+      <!-- Улучшенная форма загрузки файлов -->
+      <div class="max-w-4xl mx-auto mb-12">
         <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="uploadForm">
-          <div class="mb-6 file-upload border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <div id="dropZone" class="paste-zone dashed-border border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center cursor-pointer">
-              <i class="fas fa-file-upload text-5xl text-gray-400 mb-6"></i>
-              <p class="mb-4 text-gray-600">Перетащите markdown файл сюда или нажмите для выбора</p>
-              <p class="mb-4 paste-highlight">
-                Вставьте ваш markdown через <span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">V</span>, правый клик или контекстное меню
+          <!-- Основной блок для загрузки -->
+          <div class="mb-6 file-upload bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-center mb-6">Конвертируйте Markdown в веб-страницу</h2>
+            
+            <div id="dropZone" class="paste-zone border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center cursor-pointer">
+              <i class="fas fa-file-upload text-5xl text-blue-500 mb-4"></i>
+              <h3 class="text-xl font-semibold mb-2">Загрузите Markdown или вставьте текст</h3>
+              <p class="mb-4 text-gray-600">
+                Перетащите файлы сюда, выберите на компьютере или вставьте текст через 
+                <span class="keyboard-shortcut">Ctrl</span> + <span class="keyboard-shortcut">V</span>
               </p>
-              <label for="markdown_file" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                Выбрать Markdown файл
-              </label>
-              <input type="file" id="markdown_file" name="markdown_file" class="hidden" accept=".md, .markdown, .txt">
-              <p class="mt-4 text-sm text-gray-500">Максимальный размер файла: 150MB</p>
               
               <!-- Скрытая текстовая область для вставки Markdown -->
               <textarea id="pasteArea" name="markdown_content"></textarea>
               <input type="hidden" name="paste_action" id="pasteAction" value="false">
               <input type="hidden" name="edit_after" value="true">
+              
+              <!-- Улучшенная область для выбора файлов -->
+              <div class="mt-4 flex flex-wrap justify-center gap-4">
+                <label for="file_input" class="btn-primary flex items-center">
+                  <i class="fas fa-folder-open mr-2"></i> Выбрать файлы
+                </label>
+                <input type="file" id="file_input" class="hidden" multiple accept=".md,.markdown,.txt,.png,.jpg,.jpeg,.gif,.svg,.pdf,.webp">
+                <input type="hidden" id="selected_files_json" name="selected_files_json" value="">
+                
+                <!-- Markdown файл и дополнительные файлы (скрытые инпуты) -->
+                <input type="file" id="markdown_file" name="markdown_file" class="hidden" accept=".md,.markdown,.txt">
+                <input type="file" id="additional_files" name="additional_files" multiple class="hidden">
+              </div>
+              
+              <!-- Область предпросмотра файлов -->
+              <div id="file-preview" class="mt-6 w-full"></div>
+              
+              <!-- Прогресс загрузки -->
+              <div id="upload-progress" class="upload-progress w-full hidden">
+                <div id="upload-progress-bar" class="upload-progress-bar"></div>
+              </div>
+              
+              <!-- Кнопка отправки формы -->
+              <button type="submit" id="submit-button" class="mt-6 btn-success flex items-center">
+                <i class="fas fa-upload mr-2"></i> Опубликовать
+              </button>
             </div>
           </div>
-          
-          <div class="mb-6">
-            <label for="additional_files" class="block text-gray-700 mb-2">Дополнительные файлы (опционально)</label>
-            <p class="text-sm text-gray-600 mb-2">Загрузите изображения или другие файлы, на которые ссылается ваш Markdown-документ.</p>
-            <input type="file" id="additional_files" name="additional_files" class="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2" multiple>
-          </div>
-          
-          <!-- Добавленная кнопка для отправки формы -->
-          <div class="mb-6 text-center">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
-              Загрузить файл
-            </button>
-          </div>
-          
-          {% if not session.user_id %}
-          <div class="mb-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-            <p>
-              <i class="fas fa-info-circle mr-2"></i> Без регистрации ваш документ будет доступен в течение 3 дней.
-            </p>
-            <p class="mt-2">Зарегистрируйтесь для постоянного хранения документов.</p>
-          </div>
-          {% endif %}
         </form>
       </div>
       
-      <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-        <h3 class="text-xl font-semibold mb-4">Что такое Markdown?</h3>
-        <p class="mb-3 text-gray-700">
-          Markdown - это лёгкий язык разметки с простым синтаксисом форматирования текста. Он позволяет легко создавать:
-        </p>
-        <ul class="list-disc pl-8 mb-4 text-gray-700">
-          <li>Заголовки разных уровней</li>
-          <li>Списки (маркированные и нумерованные)</li>
-          <li>Выделение текста <strong>жирным</strong> или <em>курсивом</em></li>
-          <li>Ссылки и изображения</li>
-          <li>Таблицы и блоки кода</li>
-          <li>И многое другое</li>
-        </ul>
-        <p class="text-gray-700">
-          С помощью нашего сервиса вы можете преобразовать Markdown-файлы в красиво оформленные HTML-страницы и делиться ими с другими.
-        </p>
+      <!-- Блок с функционалом вместо "Что такое Markdown" -->
+      <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-center mb-6">Возможности сервиса</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-blue-100 rounded-full">
+              <i class="fas fa-pen-fancy text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Простое форматирование</h3>
+            <p class="text-sm text-gray-600">Заголовки, списки, выделение текста жирным и курсивом</p>
+          </div>
+          
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-green-100 rounded-full">
+              <i class="fas fa-image text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Изображения и ссылки</h3>
+            <p class="text-sm text-gray-600">Легко добавляйте изображения и гиперссылки в документ</p>
+          </div>
+          
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-purple-100 rounded-full">
+              <i class="fas fa-code text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Блоки кода</h3>
+            <p class="text-sm text-gray-600">Выделение синтаксиса для различных языков программирования</p>
+          </div>
+          
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-red-100 rounded-full">
+              <i class="fas fa-table text-2xl text-red-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Таблицы</h3>
+            <p class="text-sm text-gray-600">Создавайте структурированные таблицы для данных</p>
+          </div>
+          
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-yellow-100 rounded-full">
+              <i class="fas fa-tasks text-2xl text-yellow-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Списки задач</h3>
+            <p class="text-sm text-gray-600">Удобные чек-листы для отслеживания прогресса</p>
+          </div>
+          
+          <div class="feature-card text-center p-4 border border-gray-200 rounded-lg hover:shadow-md">
+            <div class="icon-wrapper mb-4 inline-block p-3 bg-indigo-100 rounded-full">
+              <i class="fas fa-share-alt text-2xl text-indigo-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Публикация и совместный доступ</h3>
+            <p class="text-sm text-gray-600">Делитесь документами с коллегами в удобном формате</p>
+          </div>
+        </div>
       </div>
     </main>
     <footer class="bg-gray-700 text-white p-4 mt-8">
@@ -287,12 +367,29 @@
     </footer>
     
     <script>
-      // Функционал для загрузки файлов через drag & drop
+      // Функционал для загрузки файлов
       const dropZone = document.getElementById('dropZone');
-      const fileInput = document.getElementById('markdown_file');
+      const fileInput = document.getElementById('file_input');
+      const markdownFileInput = document.getElementById('markdown_file');
+      const additionalFilesInput = document.getElementById('additional_files');
       const pasteArea = document.getElementById('pasteArea');
       const pasteAction = document.getElementById('pasteAction');
       const uploadForm = document.getElementById('uploadForm');
+      const filePreview = document.getElementById('file-preview');
+      const selectedFilesJson = document.getElementById('selected_files_json');
+      const uploadProgress = document.getElementById('upload-progress');
+      const uploadProgressBar = document.getElementById('upload-progress-bar');
+      const submitButton = document.getElementById('submit-button');
+      
+      // Обработчик для клика по зоне загрузки (активирует выбор файлов)
+      dropZone.addEventListener('click', function(e) {
+        // Избегаем запуска, если кликнули по кнопке или другим элементам
+        if (e.target === dropZone || e.target.closest('.paste-zone') === dropZone) {
+          if (!e.target.closest('button') && !e.target.closest('label')) {
+            fileInput.click();
+          }
+        }
+      });
       
       // Обработчик для Drag & Drop
       dropZone.addEventListener('dragover', (e) => {
@@ -308,190 +405,267 @@
         e.preventDefault();
         dropZone.classList.remove('drag-over');
         
+        // Обрабатываем файлы
         if (e.dataTransfer.files.length) {
-          fileInput.files = e.dataTransfer.files;
-          // Показываем имя выбранного файла вместо автоматической отправки
-          const fileName = e.dataTransfer.files[0].name;
-          showSelectedFile(fileName);
+          handleFileSelection(e.dataTransfer.files);
         }
       });
       
+      // Обработчик выбора файлов через инпут
       fileInput.addEventListener('change', () => {
         if (fileInput.files.length) {
-          // Показываем имя выбранного файла вместо автоматической отправки
-          const fileName = fileInput.files[0].name;
-          showSelectedFile(fileName);
+          handleFileSelection(fileInput.files);
         }
       });
       
-      // Функция для отображения имени выбранного файла
-      function showSelectedFile(fileName) {
-        // Создаем элемент для отображения информации о выбранном файле
-        const fileInfo = document.createElement('div');
-        fileInfo.className = 'mt-4 p-2 bg-blue-100 rounded text-blue-800';
-        fileInfo.innerHTML = `<i class="fas fa-file-alt mr-2"></i> Выбран файл: <strong>${fileName}</strong>`;
+      // Функция для обработки выбранных файлов
+      function handleFileSelection(files) {
+        const allFiles = Array.from(files);
         
-        // Сохраняем оригинальное содержимое, если оно еще не было сохранено
-        if (!dropZone.hasAttribute('data-original-content')) {
-          dropZone.setAttribute('data-original-content', dropZone.innerHTML);
+        // Определяем, какой файл является markdown (берем первый .md, .markdown или .txt)
+        const markdownFile = allFiles.find(file => 
+          file.name.toLowerCase().endsWith('.md') || 
+          file.name.toLowerCase().endsWith('.markdown') || 
+          file.name.toLowerCase().endsWith('.txt')
+        );
+        
+        // Остальные файлы считаем дополнительными
+        const otherFiles = markdownFile 
+          ? allFiles.filter(file => file !== markdownFile) 
+          : allFiles;
+        
+        // Устанавливаем markdown файл
+        if (markdownFile) {
+          const markdownTransfer = new DataTransfer();
+          markdownTransfer.items.add(markdownFile);
+          markdownFileInput.files = markdownTransfer.files;
         }
         
-        // Очищаем dropZone от текстового поля, если оно было активировано
-        if (document.getElementById('pasteArea').style.position === 'static') {
-          // Возвращаем оригинальное содержимое
-          dropZone.innerHTML = dropZone.getAttribute('data-original-content');
-          // Сбрасываем стили pasteArea
-          const newPasteArea = document.getElementById('pasteArea');
-          newPasteArea.style.position = 'fixed';
-          newPasteArea.style.left = '-9999px';
-          newPasteArea.style.top = '-9999px';
-          newPasteArea.style.width = '10px';
-          newPasteArea.style.height = '10px';
-          newPasteArea.style.opacity = '0';
+        // Устанавливаем дополнительные файлы
+        if (otherFiles.length > 0) {
+          const additionalTransfer = new DataTransfer();
+          otherFiles.forEach(file => additionalTransfer.items.add(file));
+          additionalFilesInput.files = additionalTransfer.files;
         }
         
-        // Находим место для отображения информации о файле
-        const fileDisplay = document.querySelector('.file-info-display');
-        if (fileDisplay) {
-          fileDisplay.innerHTML = '';
-          fileDisplay.appendChild(fileInfo);
-        } else {
-          // Если элемент не существует, добавляем его после dropZone
-          const newFileDisplay = document.createElement('div');
-          newFileDisplay.className = 'file-info-display mt-4';
-          newFileDisplay.appendChild(fileInfo);
+        // Сохраняем информацию о файлах в JSON
+        updateSelectedFilesJson();
+        
+        // Обновляем предпросмотр
+        updateFilePreview();
+      }
+      
+      // Сохранение выбранных файлов в JSON
+      function updateSelectedFilesJson() {
+        const fileInfo = {
+          markdown: markdownFileInput.files.length ? markdownFileInput.files[0].name : null,
+          additional: Array.from(additionalFilesInput.files).map(file => file.name)
+        };
+        selectedFilesJson.value = JSON.stringify(fileInfo);
+      }
+      
+      // Функция для обновления предпросмотра выбранных файлов
+      function updateFilePreview() {
+        filePreview.innerHTML = '';
+        const hasMarkdownFile = markdownFileInput.files && markdownFileInput.files.length;
+        const hasAdditionalFiles = additionalFilesInput.files && additionalFilesInput.files.length;
+        const hasPastedContent = pasteArea.value.trim() !== '';
+        
+        // Если ничего не выбрано, не показываем блок
+        if (!hasMarkdownFile && !hasAdditionalFiles && !hasPastedContent) {
+          return;
+        }
+        
+        // Создаем контейнер для файлов
+        const fileListContainer = document.createElement('div');
+        fileListContainer.className = 'bg-gray-50 dark:bg-gray-800 rounded-lg p-4 w-full';
+        
+        // Показываем заголовок
+        const fileListHeader = document.createElement('div');
+        fileListHeader.className = 'flex justify-between items-center mb-3';
+        fileListHeader.innerHTML = `
+          <h4 class="font-semibold">Выбранные файлы:</h4>
+          <button type="button" id="clear-all-files" class="text-red-500 hover:text-red-700 text-sm">
+            <i class="fas fa-trash-alt mr-1"></i> Очистить всё
+          </button>
+        `;
+        fileListContainer.appendChild(fileListHeader);
+        
+        // Добавляем маркдаун-файл в список
+        if (hasMarkdownFile) {
+          const mdFile = markdownFileInput.files[0];
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-md p-3 mb-2 flex justify-between items-center';
+          fileItem.innerHTML = `
+            <div class="flex items-center">
+              <i class="fas fa-file-alt mr-2"></i> 
+              <span>${mdFile.name}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">(${formatFileSize(mdFile.size)})</span>
+            </div>
+            <button type="button" class="remove-file text-red-500" data-input="markdown_file">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          fileListContainer.appendChild(fileItem);
+        }
+        
+        // Показываем вставленный текст
+        if (hasPastedContent) {
+          const pasteItem = document.createElement('div');
+          pasteItem.className = 'file-item bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-md p-3 mb-2 flex justify-between items-center';
+          pasteItem.innerHTML = `
+            <div class="flex items-center">
+              <i class="fas fa-paste mr-2"></i> 
+              <span>Вставленный текст</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">(${pasteArea.value.length} символов)</span>
+            </div>
+            <button type="button" class="clear-paste text-red-500">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          fileListContainer.appendChild(pasteItem);
+        }
+        
+        // Показываем дополнительные файлы
+        if (hasAdditionalFiles) {
+          const additionalFilesCount = additionalFilesInput.files.length;
           
-          dropZone.insertAdjacentElement('afterend', newFileDisplay);
+          const additionalHeader = document.createElement('div');
+          additionalHeader.className = 'flex justify-between items-center mt-3 mb-2';
+          additionalHeader.innerHTML = `
+            <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Дополнительные файлы (${additionalFilesCount}):</h5>
+          `;
+          fileListContainer.appendChild(additionalHeader);
+          
+          const additionalFilesGrid = document.createElement('div');
+          additionalFilesGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-2';
+          
+          Array.from(additionalFilesInput.files).forEach(file => {
+            const fileType = getFileType(file.name);
+            const fileIcon = getFileIcon(fileType);
+            const fileColor = getFileColor(fileType);
+            
+            const fileItem = document.createElement('div');
+            fileItem.className = `file-item ${fileColor} rounded-md p-2 text-sm flex justify-between items-center`;
+            fileItem.innerHTML = `
+              <div class="flex items-center overflow-hidden">
+                <i class="${fileIcon} mr-2"></i> 
+                <span class="truncate max-w-xs">${file.name}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 ml-2 whitespace-nowrap">(${formatFileSize(file.size)})</span>
+              </div>
+            `;
+            additionalFilesGrid.appendChild(fileItem);
+          });
+          
+          fileListContainer.appendChild(additionalFilesGrid);
         }
         
-        // Добавляем кнопку отмены выбора файла
-        const cancelButton = document.createElement('button');
-        cancelButton.className = 'bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-2';
-        cancelButton.textContent = 'Отменить выбор';
-        cancelButton.type = 'button';
-        cancelButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          fileInput.value = ''; // Сбрасываем выбранный файл
-          // Скрываем информацию о файле
-          if (fileDisplay) {
-            fileDisplay.innerHTML = '';
-          } else {
-            const displayToRemove = document.querySelector('.file-info-display');
-            if (displayToRemove) {
-              displayToRemove.remove();
-            }
-          }
+        filePreview.appendChild(fileListContainer);
+        
+        // Привязываем обработчики к кнопкам
+        document.querySelectorAll('.remove-file').forEach(button => {
+          button.addEventListener('click', () => {
+            const inputId = button.getAttribute('data-input');
+            document.getElementById(inputId).value = '';
+            updateSelectedFilesJson();
+            updateFilePreview();
+          });
         });
         
-        // Добавляем кнопку к отображению файла
-        if (fileDisplay) {
-          fileDisplay.appendChild(cancelButton);
-        } else {
-          document.querySelector('.file-info-display').appendChild(cancelButton);
+        document.querySelectorAll('.clear-paste').forEach(button => {
+          button.addEventListener('click', () => {
+            pasteArea.value = '';
+            pasteAction.value = 'false';
+            updateFilePreview();
+          });
+        });
+        
+        document.getElementById('clear-all-files').addEventListener('click', () => {
+          markdownFileInput.value = '';
+          additionalFilesInput.value = '';
+          fileInput.value = '';
+          pasteArea.value = '';
+          pasteAction.value = 'false';
+          updateSelectedFilesJson();
+          updateFilePreview();
+        });
+      }
+      
+      // Функция для получения иконки файла
+      function getFileIcon(fileType) {
+        switch(fileType) {
+          case 'image': return 'fas fa-image';
+          case 'pdf': return 'fas fa-file-pdf';
+          case 'markdown': return 'fas fa-file-alt';
+          default: return 'fas fa-file';
         }
       }
       
-      // Универсальная обработка вставки
+      // Функция для получения цвета фона для файла
+      function getFileColor(fileType) {
+        switch(fileType) {
+          case 'image': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+          case 'pdf': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+          case 'markdown': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+          default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        }
+      }
       
-      // 1. Обработка стандартных событий paste для всей страницы
+      // Определение типа файла
+      function getFileType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext)) return 'image';
+        if (ext === 'pdf') return 'pdf';
+        if (['md', 'markdown', 'txt'].includes(ext)) return 'markdown';
+        return 'other';
+      }
+      
+      // Форматирование размера файла
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' Б';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+      }
+      
+      // Обработка вставки (Ctrl+V)
       document.addEventListener('paste', function(e) {
-        // Получаем текст из буфера обмена
         const clipboardData = e.clipboardData || window.clipboardData;
+        
+        // Проверяем, есть ли текст
         const pastedText = clipboardData.getData('text/plain');
         
         if (pastedText && pastedText.trim() !== '') {
-          // Предотвращаем стандартное поведение вставки
-          e.preventDefault();
-          
-          // Заполняем поле для вставки
           pasteArea.value = pastedText;
           pasteAction.value = 'true';
-          
-          // Отправляем форму
-          uploadForm.submit();
+          updateFilePreview();
         }
       });
       
-      // 2. Обработка клика на drop zone для вызова контекстного меню
-      dropZone.addEventListener('click', (e) => {
-        // Проверяем, что клик был не на кнопке выбора файла и не связан с уже выбранным файлом
-        const isClickOnFileSelector = e.target.closest('label[for="markdown_file"]');
-        const isFileAlreadySelected = fileInput.files && fileInput.files.length > 0;
+      // Имитация загрузки при отправке формы
+      uploadForm.addEventListener('submit', function(e) {
+        const hasMarkdownFile = markdownFileInput.files && markdownFileInput.files.length;
+        const hasPastedContent = pasteArea.value.trim() !== '';
         
-        if (!isClickOnFileSelector && !isFileAlreadySelected) {
-          // Сохраняем оригинальное содержимое
-          if (!dropZone.hasAttribute('data-original-content')) {
-            dropZone.setAttribute('data-original-content', dropZone.innerHTML);
-          }
-          
-          // Фокусируем pasteArea, чтобы можно было вставить через меню
-          pasteArea.style.position = 'static';
-          pasteArea.style.opacity = '1';
-          pasteArea.style.width = '100%';
-          pasteArea.style.height = '100px';
-          pasteArea.style.margin = '10px 0';
-          pasteArea.style.padding = '8px';
-          pasteArea.style.border = '1px solid #ccc';
-          pasteArea.style.borderRadius = '4px';
-          pasteArea.classList.add('w-full');
-          
-          // Заменяем содержимое dropZone
-          dropZone.innerHTML = '';
-          dropZone.appendChild(pasteArea);
-          
-          // Добавляем инструкцию
-          const instruction = document.createElement('p');
-          instruction.className = 'mt-2 text-gray-600';
-          instruction.textContent = 'Вставьте ваш Markdown текст здесь через Ctrl+V, правый клик или меню "Вставить"';
-          dropZone.appendChild(instruction);
-          
-          // Добавляем кнопки действий
-          const buttonContainer = document.createElement('div');
-          buttonContainer.className = 'flex mt-4';
-          
-          const cancelButton = document.createElement('button');
-          cancelButton.className = 'bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2';
-          cancelButton.textContent = 'Отмена';
-          cancelButton.type = 'button';
-          cancelButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // Возвращаем оригинальное содержимое
-            dropZone.innerHTML = dropZone.getAttribute('data-original-content');
-            // Возвращаем скрытую область на место
-            const newPasteArea = document.getElementById('pasteArea');
-            if (newPasteArea) {
-              newPasteArea.style.position = 'fixed';
-              newPasteArea.style.left = '-9999px';
-              newPasteArea.style.top = '-9999px';
-              newPasteArea.style.width = '10px';
-              newPasteArea.style.height = '10px';
-              newPasteArea.style.opacity = '0';
-            }
-          });
-          
-          const submitButton = document.createElement('button');
-          submitButton.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded';
-          submitButton.textContent = 'Продолжить';
-          submitButton.type = 'button';
-          submitButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (pasteArea.value.trim() !== '') {
-              pasteAction.value = 'true';
-              uploadForm.submit();
-            } else {
-              alert('Пожалуйста, вставьте текст Markdown перед продолжением.');
-            }
-          });
-          
-          buttonContainer.appendChild(cancelButton);
-          buttonContainer.appendChild(submitButton);
-          dropZone.appendChild(buttonContainer);
-          
-          // Фокусируемся на textarea
-          pasteArea.focus();
+        if (!hasMarkdownFile && !hasPastedContent) {
+          e.preventDefault();
+          alert('Необходимо выбрать Markdown файл или вставить текст');
+          return;
         }
+        
+        // Показываем индикатор загрузки
+        uploadProgress.classList.remove('hidden');
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Публикация...';
+        
+        // Имитируем прогресс загрузки
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 5;
+          if (progress > 90) {
+            clearInterval(interval);
+          }
+          uploadProgressBar.style.width = progress + '%';
+        }, 100);
       });
       
       // Переключение темы
