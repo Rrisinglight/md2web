@@ -247,6 +247,27 @@
         color: #a5c9ff !important;
       }
       
+      /* Стили для флеш-сообщений и предупреждений в темной теме */
+      .dark .bg-blue-100 {
+        background-color: #1a2233 !important;
+        color: #a6c8ff !important;
+        border-color: #3b5998 !important;
+      }
+
+      .dark .text-blue-700 {
+        color: #a6c8ff !important;
+      }
+
+      .dark .bg-yellow-100 {
+        background-color: #332b1a !important;
+        color: #ffd96c !important;
+        border-color: #b7921f !important;
+      }
+
+      .dark .text-yellow-700 {
+        color: #ffd96c !important;
+      }
+      
       /* Переключатель темы */
       .theme-toggle {
         cursor: pointer;
@@ -258,6 +279,14 @@
 
       .theme-toggle:hover {
         background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      /* Стили для боковой панели со структурой файлов */
+      .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 170px; /* Регулируйте это значение в зависимости от ширины боковой панели */
       }
     </style>
   </head>
@@ -302,9 +331,10 @@
             <a
               href="{{ url_for('view_document', document_id=doc[0]) }}"
               class="flex items-center py-1 px-2 rounded hover:bg-gray-600 {% if doc[0] == document_id %}bg-gray-600{% endif %}"
+              title="{{ doc[1] }}"
             >
-              <i class="fas fa-file-alt mr-2"></i>
-              {{ doc[1] }}
+              <i class="fas fa-file-alt mr-2 flex-shrink-0"></i>
+              <span class="truncate">{{ doc[1] }}</span>
             </a>
           </li>
           {% endfor %}
@@ -316,6 +346,31 @@
       <div class="flex-grow flex">
         <!-- Центральная колонка с содержимым документа -->
         <div class="flex-grow max-w-4xl mx-auto p-4">
+          <!-- Отображение флеш-сообщений -->
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <div class="mb-4">
+                {% for message in messages %}
+                  <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-2 rounded">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+          
+          <!-- Предупреждение для незарегистрированных пользователей -->
+          {% if not session.user_id %}
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded">
+              <p>Без регистрации ваш документ будет доступен в течение 3 дней.</p>
+              <p class="mt-2">
+                <a href="{{ url_for('register') }}" class="text-blue-600 hover:text-blue-800 underline">
+                  Зарегистрируйтесь
+                </a> для постоянного хранения документов.
+              </p>
+            </div>
+          {% endif %}
+          
           <!-- Кнопка редактирования для владельца документа -->
           {% if can_edit %}
           <div class="mb-4 flex justify-end">

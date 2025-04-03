@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Редактирование {{ filename }} - Markdown to web</title>
+    <title>Создание документа - Markdown to web</title>
     <!-- Подключение шрифта Noto -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -11,8 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css" />
-    <!-- Подключение дополнительных стилей CodeMirror для подсветки Markdown -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/display/fullscreen.min.css" />
     <style>
       body {
         font-family: 'Noto Sans', sans-serif;
@@ -319,18 +317,6 @@
         color: #fca5a5;
         border-left: 4px solid #ef4444;
       }
-      
-      /* Автосохранение статус */
-      .autosave-status {
-        font-size: 12px;
-        margin-left: 10px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .autosave-status.visible {
-        opacity: 1;
-      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen">
@@ -357,13 +343,13 @@
     <main class="container mx-auto p-4">
       <div class="bg-white rounded-lg shadow-md p-6 mb-4">
         <div class="flex justify-between items-center mb-4">
-          <h1 class="text-2xl font-semibold">Редактирование: {{ filename }}</h1>
-          <div class="flex items-center">
-            <div id="autosave-status" class="autosave-status text-green-600">
-              <i class="fas fa-check mr-1"></i>Автосохранено
-            </div>
-            <button id="publish-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-              <i class="fas fa-paper-plane mr-2"></i>Опубликовать
+          <h1 class="text-2xl font-semibold">Создание Markdown документа</h1>
+          <div class="flex">
+            <button id="preview-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mr-2">
+              <i class="fas fa-eye mr-2"></i>Предпросмотр
+            </button>
+            <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+              <i class="fas fa-save mr-2"></i>Сохранить
             </button>
           </div>
         </div>
@@ -385,26 +371,68 @@
           <div class="toolbar-btn" title="Горизонтальная линия" onclick="insertMarkdown('\n---\n', '')"><i class="fas fa-ruler-horizontal"></i></div>
         </div>
         
+        <div class="mb-4">
+          <label for="filename" class="block text-gray-700 mb-1">Имя файла (опционально)</label>
+          <input type="text" id="filename" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="document.md">
+          <p class="text-sm text-gray-600 mt-1">Если не указано, будет сгенерировано автоматически.</p>
+        </div>
+        
         <div class="flex flex-col md:flex-row">
           <div id="editor-container" class="w-full md:w-1/2 md:pr-2">
-            <textarea id="markdown-editor">{{ markdown_content }}</textarea>
+            <textarea id="markdown-editor">
+# Заголовок
+
+Это *курсив* и это **жирный текст**.
+
+## Подзаголовок
+
+Пример списка:
+
+- Элемент 1
+- Элемент 2
+- Элемент 3
+
+### Пример кода
+
+```python
+def hello_world():
+    print("Hello, world!")
+```
+
+> Это цитата. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+![Пример изображения](https://example.com/image.jpg)
+
+[Пример ссылки](https://example.com)
+
+            </textarea>
           </div>
-          <div id="preview-container" class="w-full md:w-1/2 md:pl-2">
+          <div id="preview-container" class="w-full md:w-1/2 md:pl-2 hidden">
             <div class="preview-container" id="markdown-preview"></div>
+          </div>
+        </div>
+        
+        <div class="flex justify-between mt-4">
+          <a href="{{ url_for('index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+            <i class="fas fa-arrow-left mr-2"></i>Вернуться
+          </a>
+          
+          <div>
+            <button type="button" id="publish-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+              <i class="fas fa-paper-plane mr-2"></i>Опубликовать
+            </button>
+            
+            <button type="button" id="edit-publish-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-edit mr-2"></i>Опубликовать и редактировать
+            </button>
           </div>
         </div>
       </div>
       
-      <div class="flex justify-end mt-4">
-        <form id="publish-form" method="post" action="{{ url_for('publish_document', document_id=document_id) }}">
-          <input type="hidden" name="content" id="content-for-publish">
-        </form>
+      <div id="notification" class="notification">
+        <span id="notification-message"></span>
       </div>
     </main>
-    
-    <div id="notification" class="notification">
-      <span id="notification-message"></span>
-    </div>
     
     <footer class="bg-gray-800 text-white p-4 mt-8">
       <div class="container mx-auto text-center">
@@ -435,20 +463,22 @@
         }
       });
       
-      // Добавляем обработчик изменений для лайв-превью и автосохранения
-      let autoSaveTimer;
-      const autoSaveDelay = 2000; // 2 секунды
-      const autoSaveStatus = document.getElementById('autosave-status');
-      
-      editor.on('change', function() {
-        // Обновляем превью в реальном времени
-        updatePreview();
+      // Переключение между редактором и предпросмотром
+      document.getElementById('preview-btn').addEventListener('click', function() {
+        const editorContainer = document.getElementById('editor-container');
+        const previewContainer = document.getElementById('preview-container');
+        const previewBtn = document.getElementById('preview-btn');
         
-        // Устанавливаем таймер автосохранения
-        clearTimeout(autoSaveTimer);
-        autoSaveTimer = setTimeout(function() {
-          saveContent();
-        }, autoSaveDelay);
+        if (previewContainer.classList.contains('hidden')) {
+          // Показать предпросмотр
+          previewContainer.classList.remove('hidden');
+          updatePreview();
+          previewBtn.innerHTML = '<i class="fas fa-edit mr-2"></i>Редактировать';
+        } else {
+          // Скрыть предпросмотр
+          previewContainer.classList.add('hidden');
+          previewBtn.innerHTML = '<i class="fas fa-eye mr-2"></i>Предпросмотр';
+        }
       });
       
       // Функция обновления предпросмотра
@@ -457,58 +487,6 @@
         const previewElement = document.getElementById('markdown-preview');
         previewElement.innerHTML = marked.parse(markdownContent);
       }
-      
-      // Вызываем обновление превью сразу при загрузке страницы
-      window.addEventListener('DOMContentLoaded', function() {
-        updatePreview();
-      });
-      
-      // Автоматическое сохранение
-      function saveContent() {
-        const content = editor.getValue();
-        const documentId = '{{ document_id }}';
-        
-        fetch(`/save/${documentId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `content=${encodeURIComponent(content)}`
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showAutoSaveStatus();
-          } else {
-            showNotification(data.message, 'error');
-          }
-        })
-        .catch(error => {
-          showNotification('Ошибка при автосохранении: ' + error, 'error');
-        });
-      }
-      
-      // Функция отображения статуса автосохранения
-      function showAutoSaveStatus() {
-        autoSaveStatus.classList.add('visible');
-        setTimeout(() => {
-          autoSaveStatus.classList.remove('visible');
-        }, 2000);
-      }
-      
-      // Кнопка публикации
-      document.getElementById('publish-btn').addEventListener('click', function() {
-        const content = editor.getValue();
-        document.getElementById('content-for-publish').value = content;
-        
-        // Сначала автоматически сохраняем
-        saveContent();
-        
-        // Затем переходим на страницу публикации
-        setTimeout(() => {
-          window.location.href = '{{ url_for("publish_document", document_id=document_id) }}';
-        }, 300);
-      });
       
       // Функция для отображения уведомлений
       function showNotification(message, type) {
@@ -574,6 +552,56 @@
         editor.focus();
       }
       
+      // Публикация документа
+      document.getElementById('publish-btn').addEventListener('click', function() {
+        publishDocument(false);
+      });
+      
+      // Публикация и редактирование документа
+      document.getElementById('edit-publish-btn').addEventListener('click', function() {
+        publishDocument(true);
+      });
+      
+      function publishDocument(editAfter) {
+        const content = editor.getValue();
+        const filename = document.getElementById('filename').value;
+        
+        // Создаем форму для отправки
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '{{ url_for("upload_file") }}';
+        form.style.display = 'none';
+        
+        // Добавляем контент
+        const contentInput = document.createElement('input');
+        contentInput.type = 'hidden';
+        contentInput.name = 'markdown_content';
+        contentInput.value = content;
+        form.appendChild(contentInput);
+        
+        // Добавляем имя файла, если указано
+        if (filename) {
+          const filenameInput = document.createElement('input');
+          filenameInput.type = 'hidden';
+          filenameInput.name = 'filename';
+          filenameInput.value = filename;
+          form.appendChild(filenameInput);
+        }
+        
+        // Если нужно редактировать после публикации
+        if (editAfter) {
+          const editInput = document.createElement('input');
+          editInput.type = 'hidden';
+          editInput.name = 'edit_after';
+          editInput.value = 'true';
+          form.appendChild(editInput);
+        }
+        
+        // Добавляем форму на страницу и отправляем
+        document.body.appendChild(form);
+        form.submit();
+      }
+      
       // Переключение темы
       const themeToggle = document.getElementById('theme-toggle');
       const themeIcon = document.getElementById('theme-icon');
@@ -598,6 +626,14 @@
         }
       });
       
+      // Устанавливаем правильный значок темы при загрузке
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.documentElement.classList.contains('dark')) {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      });
+      
       // Обновление темы на сервере
       function updateTheme(theme) {
         fetch('/toggle-theme', {
@@ -617,14 +653,6 @@
           console.error('Ошибка при обновлении темы:', error);
         });
       }
-      
-      // Устанавливаем правильный значок темы при загрузке
-      window.addEventListener('DOMContentLoaded', function() {
-        if (document.documentElement.classList.contains('dark')) {
-          themeIcon.classList.remove('fa-moon');
-          themeIcon.classList.add('fa-sun');
-        }
-      });
     </script>
   </body>
 </html>
