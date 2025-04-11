@@ -88,7 +88,7 @@ EOF
 }
 
 setup_nginx_initial() {
-    cat > "/etc/nginx/sites-available/mark2web" << EOF
+    cat > "/etc/nginx/sites-available/mark2web" << 'EOF'
 server {
     listen 80;
     listen [::]:80;
@@ -116,7 +116,7 @@ setup_ssl() {
 }
 
 setup_nginx_secure() {
-    cat > "/etc/nginx/sites-available/mark2web" << EOF
+    cat > "/etc/nginx/sites-available/mark2web" << 'EOF'
 server {
     listen 80;
     listen [::]:80;
